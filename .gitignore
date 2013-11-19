@@ -1,0 +1,8 @@
+echoClient.jar
+bin/*
+MANIFEST.MF
+
+# Ignore Eclipse settings too
+.settings/*
+.classpath
+.project
