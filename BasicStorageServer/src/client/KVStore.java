@@ -61,8 +61,11 @@ public class KVStore implements KVCommInterface {
 		KVMessage message = new KVMessageImpl(StatusType.PUT, key, value);
 		byte[] b = marshaller.marshal(message);
 	    if(session!=null){
+	    	// TODO Add some logging that the message is trying to be sent...
 	        session.send(b);
+	        // TODO ...that the client is waiting for a response
 	        message = marshaller.unmarshal(session.receive());
+	        // TODO ...that the response has been received.
 	        return message;
 	    }
 	    else{
@@ -81,9 +84,12 @@ public class KVStore implements KVCommInterface {
      *             KV server).
      */
 	public KVMessage get(String key) throws Exception {
+		KVMessage message = new KVMessageImpl(StatusType.GET, key, null);
 	    if(session!=null){
+	    	// TODO Logging -- same as for put.
+	    	session.send(marshaller.marshal(message));
 	        byte[] b = session.receive();
-	        KVMessage message  = marshaller.unmarshal(b);
+	        message  = marshaller.unmarshal(b);
 	        return message;
 	    }
 	    else{
