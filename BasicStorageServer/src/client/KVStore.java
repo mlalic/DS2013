@@ -60,9 +60,9 @@ public class KVStore implements KVCommInterface {
 	public KVMessage put(String key, String value) throws Exception {
 		KVMessage message = new KVMessageImpl(StatusType.PUT, key, value);
 		byte[] b = marshaller.marshal(message);
-		message = marshaller.unmarshal(b);
 	    if(session!=null){
 	        session.send(b);
+	        message = marshaller.unmarshal(session.receive());
 	        return message;
 	    }
 	    else{
