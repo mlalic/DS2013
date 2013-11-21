@@ -7,6 +7,11 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+import logger.LogSetup;
+
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+
 //import org.apache.log4j.Logger;
 
 //import logging.MyLogger;
@@ -14,14 +19,17 @@ import java.io.InputStreamReader;
 public class KVClient {
     private final static String PROMPT = "BasicStorageServer> ";
     
+    private static Logger logger = Logger.getRootLogger();
 
     public static void main(String[] args) {
         
-        //MyLogger mylog = MyLogger.getInstance();
-        //mylog.createLogger(Application.class);
-        //Logger log = mylog.getLogger();
-        
-        //log.info("Program is started.");
+    	try {
+			new LogSetup("logs/client/client.log", Level.ALL);
+		} catch (IOException e1) {
+			logger.error("Error! Unable to initialize logger!");
+			e1.printStackTrace();
+			System.exit(1);
+		}
         
         CommandFactory factory = new CommandFactory();
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
@@ -30,11 +38,11 @@ public class KVClient {
             System.out.print(PROMPT);
             try {
                 line = reader.readLine();
-                //log.info("You entered this text: " + line.toString());
+                logger.info("You entered this text: " + line.toString());
             } catch (IOException e) {
                 e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-                //log.error("Exception in the class: " + log.getName());
-                //log.error(e.getStackTrace());
+                logger.error("Exception in main method: " + "\n");
+                logger.error(e);
             }
             if (line == null) {
                 // EOF
@@ -43,13 +51,11 @@ public class KVClient {
             Command command = factory.createCommand(line);
             if (command == null) {
                 System.out.println("Invalid command.");
-                
-                //log.info("Unfortunately your command is invalid.");
+                logger.info("Unfortunately your command is invalid.");
                 continue;
             } else {
-                command.execute();
-                
-                //log.info("Entered command has been executed.");
+                command.execute();            
+                logger.info("Entered command has been executed.");
             }
         }
     }

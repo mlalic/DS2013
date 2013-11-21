@@ -1,23 +1,13 @@
 package app_kvClient.commands;
 
-//import logging.MyLogger;
-
-//import org.apache.log4j.Logger;
-
-//import ui.Application;
+import org.apache.log4j.Logger;
 
 public class HelpCommand extends Command {
 	
-	//MyLogger myLog;
-	//Logger log;
-
+	private static Logger logger = Logger.getRootLogger();
+	
 	public HelpCommand(Context context, String[] parameters, String line) {
 		super(context, parameters, line);
-		
-		//myLog = MyLogger.getInstance();
-    	//myLog.createLogger(HelpCommand.class);
-		//log = myLog.getLogger();
-		//log.info("You have made the help command.");
 	}
 
 	@Override
@@ -63,7 +53,7 @@ public class HelpCommand extends Command {
 	@Override
 	public boolean isValid() {
 		if (parameters.length == 0) {
-			//log.info("Your help command is valid.");
+			logger.info("Your help command is valid.");
 			return true;
 		} else if ("connect".equals(parameters[0])
 				|| "disconnect".equals(parameters[0])
@@ -71,7 +61,7 @@ public class HelpCommand extends Command {
 				|| "quit".equals(parameters[0])
 				|| "get".equals(parameters[0])) {
 			
-			//log.info("Your help command is valid.");
+			logger.info("Your help command is valid.");
 			return true;
 		}
 		else {

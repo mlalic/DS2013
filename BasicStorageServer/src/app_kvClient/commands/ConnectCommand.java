@@ -3,11 +3,16 @@ package app_kvClient.commands;
 import java.io.IOException;
 import java.net.UnknownHostException;
 
+import org.apache.log4j.Logger;
+
 import client.KVCommInterface;
 import client.KVStore;
 
 public class ConnectCommand extends Command {
-    public ConnectCommand(Context context, String[] parameters, String line) {
+    
+	private static Logger logger = Logger.getRootLogger();
+	
+	public ConnectCommand(Context context, String[] parameters, String line) {
         super(context, parameters, line);
     }
 
@@ -29,17 +34,17 @@ public class ConnectCommand extends Command {
             return true;
         }
         catch(UnknownHostException uHEx){
-            //Log
+        	logger.error("Unknown Host "+parameters[0]+":"+parameters[1]);
             writeError("Unknown Host "+parameters[0]+":"+parameters[1]);
             return false;
         }
         catch(IOException iOEx){
-            //Log
+        	logger.error("Unable to communicate with the KV server");
         	writeError("Unable to communicate with the KV server");
             return false;
         }
         catch(Exception ex){
-            ///Log
+        	logger.error("Connection not established! " + ex.getMessage());
         	writeError("Connection not established! " + ex.getMessage());
             return false;
         }

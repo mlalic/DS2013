@@ -1,25 +1,15 @@
 package app_kvClient.commands;
 
-//import logging.MyLogger;
-
-//import org.apache.log4j.Logger;
+import org.apache.log4j.Logger;
 
 import client.KVCommInterface;
-//import ui.Application;
-//import network.Session;
 
 public class QuitCommand extends Command {
 	
-	//MyLogger myLog;
-	//Logger log;
+	private static Logger logger = Logger.getRootLogger();
 	
     public QuitCommand(Context context, String[] parameters, String line) {
         super(context, parameters, line);
-        
-        //myLog = MyLogger.getInstance();
-    	//myLog.createLogger(QuitCommand.class);
-		//log = myLog.getLogger();
-		//log.info("You have made the quit command.");
     }
 
     @Override
@@ -30,7 +20,7 @@ public class QuitCommand extends Command {
             session.disconnect();
         }
         
-        //log.info("Application exit.");
+        logger.info("Application exit.");
         writeResponse("Application exit!");
         System.exit(0);
         return true;
@@ -39,7 +29,7 @@ public class QuitCommand extends Command {
     @Override
     public boolean isValid() {
         if(parameters != null && parameters.length == 0) {
-        	//log.info("Your quit command is valid.");
+        	logger.info("Your quit command is valid.");
         	return true;
         }
         return false;

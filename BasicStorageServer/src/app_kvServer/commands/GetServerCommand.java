@@ -2,10 +2,15 @@ package app_kvServer.commands;
 
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.log4j.Logger;
+import org.apache.log4j.pattern.LogEvent;
+
 import common.messages.KVMessage;
 import common.messages.KVMessageImpl;
 
 public class GetServerCommand extends ServerCommand {
+	
+	private static Logger logger = Logger.getRootLogger();
 
 	public GetServerCommand(String key, String value, final ConcurrentHashMap<String, String> serverStorage) {
 		super(key, value, serverStorage);
@@ -24,12 +29,22 @@ public class GetServerCommand extends ServerCommand {
 					KVMessage.StatusType.GET_ERROR,
 					key,
 					"Key '" + key + "' not found");
+			logger.info("Server has executed GET_ERROR");
 			return responseMessage;
 		}
 		else {
 			responseMessage = new KVMessageImpl(KVMessage.StatusType.GET_SUCCESS, key, value);
+			logger.info("Server has executed GET_SUCCESS");
 			return responseMessage;
 		}
+	}
+
+	@Override
+	public boolean isValid() {
+		if (key == null) {
+			return false;
+		}
+		return true;
 	}
 
 }

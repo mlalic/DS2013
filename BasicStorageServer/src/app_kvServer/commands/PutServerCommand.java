@@ -2,9 +2,13 @@ package app_kvServer.commands;
 
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.log4j.Logger;
+
 import common.messages.*;
 
 public class PutServerCommand extends ServerCommand {
+	
+	private static Logger logger = Logger.getRootLogger();
 	
 	public PutServerCommand(String key, String value, final ConcurrentHashMap<String, String> serverStorage) {
 		super(key, value, serverStorage);
@@ -19,21 +23,46 @@ public class PutServerCommand extends ServerCommand {
 	@Override
 	public KVMessage execute() {
 		try {
-			String oldValue = serverStorage.get(key);
-			if (oldValue == null) {
+			boolean oldValue = false;
+			oldValue = serverStorage.containsKey(key);
+			if (!oldValue) {
 				serverStorage.put(key, value);
 				responseMessage = new KVMessageImpl(KVMessage.StatusType.PUT_SUCCESS, key, value);
+				logger.info("Server has executed PUT_SUCCESS");
 				return responseMessage;
+			}
+			else if ("".equals(value)){
+				try {
+					serverStorage.remove(key);
+					responseMessage = new KVMessageImpl(KVMessage.StatusType.DELETE_SUCCESS, key, value);
+					logger.info("Server has executed DELETE_SUCCESS");
+					return responseMessage;
+				}
+				catch (Exception e) {
+					responseMessage = new KVMessageImpl(KVMessage.StatusType.DELETE_ERROR, key, value);
+					logger.info("Server has executed DELETE_ERROR");
+					return responseMessage;
+				}
 			}
 			else {
 				serverStorage.put(key, value);
 				responseMessage = new KVMessageImpl(KVMessage.StatusType.PUT_UPDATE, key, value);
+				logger.info("Server has executed PUT_UPDATE");
 				return responseMessage;
 			}
 		} catch (Exception e) {
 			responseMessage = new KVMessageImpl(KVMessage.StatusType.PUT_ERROR, key, e.getMessage());
+			logger.info("Server has executed PUT_ERROR");
 			return responseMessage;
 		}
+	}
+
+	@Override
+	public boolean isValid() {
+		if (key == null) {
+			return false;
+		}
+		return true;
 	}
 
 }

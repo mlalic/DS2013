@@ -89,6 +89,7 @@ public class ClientConnection implements Runnable {
 			        byte[] data = readRawRequest(input);
 			        if (data == null) {
 			        	// Error -- no message could be read from the stream...
+			        	logger.error("Error -- no message could be read from the stream...");
 			        	writeResponse(output, createErrorResponse("Error reading the sent command"));
 			        }
 
@@ -98,11 +99,12 @@ public class ClientConnection implements Runnable {
 			        	requestMessage = kvMessageMarshaller.unmarshal(data);
 			        } catch (Exception exc) {
 			        	// Invalid command response ...
+			        	logger.error("Invalid command response ...");
 			        	writeResponse(output, createErrorResponse(exc.getMessage()));
 			        	continue;
 			        }
-			        // TODO Replace with a real logger and a more detailed message...
-					System.out.println("Got message ...");
+			        
+			        logger.info("Server got a message from the client.");
 					
 					// create the command
 					ServerCommand serverCommand = factory.createServerCommand(requestMessage);
@@ -110,9 +112,8 @@ public class ClientConnection implements Runnable {
 					//execute command and get the responseMessage as the result
 					KVMessage responseMessage = serverCommand.execute();
 					
-					// TODO Add some logging for the command result
-					System.out.println("Response key " + responseMessage.getKey());
-					System.out.println("Response value " + responseMessage.getValue());
+					logger.info("Server has successfully executed request and made response for the key: " 
+							+ responseMessage.getKey() + " and value: " + responseMessage.getValue());
 					
 					// marshal KVMessage and send back to user
 					writeResponse(output, responseMessage);
