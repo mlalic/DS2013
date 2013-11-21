@@ -27,6 +27,14 @@ public abstract class Command {
         final PrintStream stream = context.getOutputStream();
         stream.println(response);
     }
+    
+    /**
+     * Prints an error message as a response to the command.
+     * @param errorMessage The text of the error message
+     */
+    protected void writeError(String errorMessage) {
+    	writeResponse("Error: " + errorMessage);
+    }
 
     /**
      * Checks whether the parameters of the command are valid.
