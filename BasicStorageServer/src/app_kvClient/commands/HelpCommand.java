@@ -23,7 +23,13 @@ public class HelpCommand extends Command {
 	@Override
 	public boolean execute() {
 		if (parameters.length == 0) {
-			writeResponse("You can choose one of these commands: \n help connect \n help disconnect \n help send \n help quit \n");
+			writeResponse(
+					"You can choose one of these commands: \n" +
+					" help connect \n" +
+					" help disconnect \n" +
+					" help put \n" +
+					" help get \n" +
+					" help quit \n");
 			return true;
 		} 
 		else if ("connect".equals(parameters[0])) {
