@@ -20,7 +20,10 @@ public class GetServerCommand extends ServerCommand {
 	public KVMessage execute() {
 		String value = serverStorage.get(key);
 		if (value == null) {
-			responseMessage = new KVMessageImpl(KVMessage.StatusType.GET_ERROR, key, value);
+			responseMessage = new KVMessageImpl(
+					KVMessage.StatusType.GET_ERROR,
+					key,
+					"Key '" + key + "' not found");
 			return responseMessage;
 		}
 		else {

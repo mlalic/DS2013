@@ -31,7 +31,7 @@ public class PutServerCommand extends ServerCommand {
 				return responseMessage;
 			}
 		} catch (Exception e) {
-			responseMessage = new KVMessageImpl(KVMessage.StatusType.PUT_ERROR, key, value);
+			responseMessage = new KVMessageImpl(KVMessage.StatusType.PUT_ERROR, key, e.getMessage());
 			return responseMessage;
 		}
 	}
