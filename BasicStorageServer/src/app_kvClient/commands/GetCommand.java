@@ -4,8 +4,8 @@ import java.io.IOException;
 
 import client.KVCommInterface;
 import client.NotConnectedException;
-
 import common.messages.KVMessage;
+import common.messages.KVMessage.StatusType;
 
 public class GetCommand extends Command {
     public GetCommand(Context context, String[] parameters, String line) {
@@ -24,7 +24,16 @@ public class GetCommand extends Command {
 
         try {
             KVMessage response = session.get(parameters[0]);
-            writeResponse(response.getValue());
+            if (response.getStatus() != StatusType.GET_SUCCESS) {
+            	// By the protocol, the error message is put in the value
+            	// field.
+            	writeError(response.getValue());
+            } else {
+            	writeResponse(String.format(
+            			"The value for key '%s' is '%s'",
+            			response.getKey(),
+            			response.getValue()));
+            }
         } 
         catch(NotConnectedException ncEx){
             writeError("You are not connected. Please connect to a server first.");
