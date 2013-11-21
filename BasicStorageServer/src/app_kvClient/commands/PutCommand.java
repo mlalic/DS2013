@@ -4,8 +4,8 @@ import java.io.IOException;
 
 import client.KVCommInterface;
 import client.NotConnectedException;
-
 import common.messages.KVMessage;
+import common.messages.KVMessage.StatusType;
 
 public class PutCommand extends Command {
     public PutCommand(Context context, String[] parameters, String line) {
@@ -24,7 +24,34 @@ public class PutCommand extends Command {
 
         try {
             KVMessage response = session.put(parameters[0], parameters[1]);
-            writeResponse(response.getValue());
+            if (response.getStatus() == StatusType.PUT_SUCCESS) {
+            	writeResponse(String.format(
+            			"Value '%s' for key '%s' successfully saved",
+            			response.getValue(),
+            			response.getKey()));
+            } else if (response.getStatus() == StatusType.PUT_UPDATE) {
+            	writeResponse(String.format(
+            			"Value for key '%s' successfully updated. The new value is '%s'",
+            			response.getKey(),
+            			response.getValue()));           	
+            } else if (response.getStatus() == StatusType.DELETE_SUCCESS) {
+            	writeResponse(String.format(
+            			"The key '%s' has been successfully deleted from the KV store",
+            			response.getKey()));
+            } else if (response.getStatus() == StatusType.DELETE_ERROR) {
+            	writeError(String.format(
+            			"Error deleting key '%s'. %s",
+            			response.getKey(),
+            			response.getValue()));
+            } else if (response.getStatus() == StatusType.PUT_ERROR) {
+            	writeError(String.format(
+            			"Error updating value for key '%s'. %s",
+            			response.getKey(),
+            			response.getValue()));
+            } else {
+            	// Unknown status code means that there was some other error ...
+            	writeError(response.getValue());
+            }
         } 
         catch(NotConnectedException ncEx){
             writeError("You are not connected. Please connect to a server first.");
