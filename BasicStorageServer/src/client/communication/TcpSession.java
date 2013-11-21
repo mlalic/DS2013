@@ -100,6 +100,10 @@ public class TcpSession implements Session {
 		byte[] inDataBuff = new byte[bufferSize];
         while (true) {
             int bytesRead = is.read(inDataBuff, 0, bufferSize);
+            if (bytesRead == -1) {
+            	// Reached the end of the stream - connection probably lost
+            	return null;
+            }
             System.arraycopy(inDataBuff, 0, inData, alreadyRead, bytesRead);
             alreadyRead += bytesRead;
             if (alreadyRead >= MAX_RESPONSE_SIZE) {
