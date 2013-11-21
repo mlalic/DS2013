@@ -17,10 +17,9 @@ public class ConnectCommand extends Command {
         if (session != null) {
             // There is an already active session.
             // Need to ask the user to disconnect first.
-            writeResponse("A session is already active. Please disconnect first.");
+            writeError("A session is already active. Please disconnect first.");
             return true;
         }
-        // TODO Create a KVStore instance...
         session = new KVStore(parameters[0], Integer.parseInt(parameters[1]));
         try{
             session.connect();
@@ -31,15 +30,17 @@ public class ConnectCommand extends Command {
         }
         catch(UnknownHostException uHEx){
             //Log
-            writeResponse("Unknown Host "+parameters[0]+":"+parameters[1]);
+            writeError("Unknown Host "+parameters[0]+":"+parameters[1]);
             return false;
         }
         catch(IOException iOEx){
             //Log
+        	writeError("Unable to communicate with the KV server");
             return false;
         }
         catch(Exception ex){
             ///Log
+        	writeError("Connection not established! " + ex.getMessage());
             return false;
         }
     }

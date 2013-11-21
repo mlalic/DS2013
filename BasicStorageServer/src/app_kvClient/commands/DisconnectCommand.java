@@ -12,7 +12,7 @@ public class DisconnectCommand extends Command {
     public boolean execute() {
         final KVCommInterface session = context.getSession();
         if (session == null) {
-            writeResponse("No active connection.");
+            writeError("No active connection.");
             return false;
         }
         context.setSession(null);
