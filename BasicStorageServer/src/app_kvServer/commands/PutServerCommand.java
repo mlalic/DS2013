@@ -31,7 +31,7 @@ public class PutServerCommand extends ServerCommand {
 				logger.info("Server has executed PUT_SUCCESS");
 				return responseMessage;
 			}
-			else if ("".equals(value)){
+			else if ("null".equals(value)){
 				try {
 					serverStorage.remove(key);
 					responseMessage = new KVMessageImpl(KVMessage.StatusType.DELETE_SUCCESS, key, value);

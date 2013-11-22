@@ -29,13 +29,7 @@ public class PutCommand extends Command {
         }
 
         try {
-        	KVMessage response;
-        	if (parameters.length == 2) {
-        		response = session.put(parameters[0], parameters[1]);
-        	}
-        	else {
-        		response = session.put(parameters[0], "");
-        	}
+        	KVMessage response = session.put(parameters[0], parameters[1]);
             if (response.getStatus() == StatusType.PUT_SUCCESS) {
             	writeResponse(String.format(
             			"Value '%s' for key '%s' successfully saved",
@@ -82,9 +76,6 @@ public class PutCommand extends Command {
 
     @Override
     public boolean isValid() {
-    	if (parameters.length == 0) {
-    		return false;
-    	}
-        return true;
+    	return parameters.length == 2;
     }
 }
