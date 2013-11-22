@@ -36,6 +36,8 @@ public class CommandFactory {
             command = new PutCommand(context, parameters, line);
         }else if(commandName.equals("get")) {
             command = new GetCommand(context, parameters, line);
+        } else if (commandName.equals("logLevel")) {
+        	command = new LogLevelCommand(context, parameters, line);
         }
         // No concrete class matches the command name
         if (command == null) {
