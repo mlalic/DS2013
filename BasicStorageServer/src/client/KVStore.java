@@ -3,6 +3,8 @@ package client;
 
 import java.io.IOException;
 
+import org.apache.log4j.Logger;
+
 import client.communication.Session;
 import client.communication.TcpSession;
 import common.messages.KVMessage;
@@ -12,7 +14,8 @@ import common.messages.KVMessageMarshaller;
 
 
 public class KVStore implements KVCommInterface {
-    
+	private static Logger logger = Logger.getRootLogger();
+	
     String host;
     int port;
     Session session;
@@ -61,15 +64,18 @@ public class KVStore implements KVCommInterface {
 		KVMessage message = new KVMessageImpl(StatusType.PUT, key, value);
 		byte[] b = marshaller.marshal(message);
 	    if(session!=null){
-	    	// TODO Add some logging that the message is trying to be sent...
+	    	logger.info(String.format(
+	    			"Sending a put request for (key, value) pair - ('%s', '%s')",
+	    			key, value)); 
 	        session.send(b);
-	        // TODO ...that the client is waiting for a response
+	        logger.info("Waiting for put request response...");
 	        byte[] response = session.receive();
 	        if (response == null) {
+	        	logger.info("No response received");
 	        	throw new Exception("Could not receive the response");
 	        }
 	        message = marshaller.unmarshal(response);
-	        // TODO ...that the response has been received.
+	        logger.info("Response received and processed");
 	        return message;
 	    }
 	    else{
@@ -90,13 +96,18 @@ public class KVStore implements KVCommInterface {
 	public KVMessage get(String key) throws Exception {
 		KVMessage message = new KVMessageImpl(StatusType.GET, key, null);
 	    if(session!=null){
-	    	// TODO Logging -- same as for put.
+	    	logger.info(String.format(
+	    			"Sending a get request for key '%s'",
+	    			key)); 
 	    	session.send(marshaller.marshal(message));
+	        logger.info("Waiting for get request response...");
 	        byte[] b = session.receive();
 	        if (b == null) {
+	        	logger.info("No response received");
 	        	throw new Exception("Could not receive response");
 	        }
 	        message  = marshaller.unmarshal(b);
+	        logger.info("Response received and processed");
 	        return message;
 	    }
 	    else{

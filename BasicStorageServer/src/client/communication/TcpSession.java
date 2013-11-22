@@ -7,8 +7,11 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 
+import org.apache.log4j.Logger;
+
 
 public class TcpSession implements Session {
+	private static Logger logger = Logger.getRootLogger();
 	
 	Socket client;
 	String host;
@@ -78,10 +81,11 @@ public class TcpSession implements Session {
 	 * Sends an array of bytes to the output stream
 	 * @param outData an array of bytes to be sent over an open connection
 	 * @return true when the data is successfully sent
-	 * @return false when the data is not successfuly sent
+	 * @return false when the data is not successfully sent
 	 * @throws IOException if send fails
 	 */
 	public boolean send(byte[] outData) throws IOException {
+		logger.info("Sending " + outData.length + " bytes to the server...");
 	    os.write(outData);
 		os.flush();
 		return true;
@@ -102,8 +106,10 @@ public class TcpSession implements Session {
             int bytesRead = is.read(inDataBuff, 0, bufferSize);
             if (bytesRead == -1) {
             	// Reached the end of the stream - connection probably lost
+            	logger.info("No bytes received - reached end of stream");
             	return null;
             }
+            logger.info("Read " + bytesRead + " bytes");
             System.arraycopy(inDataBuff, 0, inData, alreadyRead, bytesRead);
             alreadyRead += bytesRead;
             if (alreadyRead >= MAX_RESPONSE_SIZE) {
@@ -119,6 +125,7 @@ public class TcpSession implements Session {
 		}
 		else{
             // Return only the data that was received from the server
+			logger.info("Total size of read data " + alreadyRead);
 			return Arrays.copyOf(inData, alreadyRead);
 		}
 	}
