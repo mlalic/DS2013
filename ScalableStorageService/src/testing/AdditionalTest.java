@@ -1,10 +1,12 @@
 package testing;
 
+import junit.framework.TestCase;
+
 import org.junit.Test;
 
-
 import common.metadata.KeyRange;
-import junit.framework.TestCase;
+import common.metadata.MetaData;
+import common.metadata.MetaDataTransport;
 
 public class AdditionalTest extends TestCase {
 
@@ -57,6 +59,24 @@ public class AdditionalTest extends TestCase {
 		assertFalse(range.isInRange("11"));
 		// A value strictly less than the range's beginning is not in it.
 		assertFalse(range.isInRange("CC"));
+	}
+	
+	@Test
+	public void testMetaData() {
+		MetaData metaData = new MetaData();
+		metaData.addServer("firstServer", "192.168.1.1", 50, new KeyRange("0", "9"));
+		metaData.addServer("secondServer", "192.168.1.2", 50, new KeyRange("A", "F"));
+		
+		assertEquals(2, metaData.getServers().size());
+		assertEquals(
+				"192.168.1.1",
+				metaData.getServerMetaData("firstServer").getIpAddress());
+		assertEquals(
+				"192.168.1.2",
+				metaData.getServerMetaData("secondServer").getIpAddress());
+		assertEquals("0", metaData.getServerMetaData("firstServer").getRange().getStart());
+		assertEquals("9", metaData.getServerMetaData("firstServer").getRange().getEnd());
+		assertEquals(50, metaData.getServerMetaData("firstServer").getPort());
 	}
 	
 	}
