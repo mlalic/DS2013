@@ -1,5 +1,8 @@
 package testing;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import junit.framework.TestCase;
 
 import org.junit.Test;
@@ -9,6 +12,7 @@ import common.metadata.KeyRange;
 import common.metadata.Md5Hasher;
 import common.metadata.MetaData;
 import common.metadata.MetaDataTransport;
+import common.metadata.ServerNode;
 
 public class AdditionalTest extends TestCase {
 
@@ -66,39 +70,30 @@ public class AdditionalTest extends TestCase {
 	@Test
 	public void testMetaData() {
 		MetaData metaData = new MetaData();
-		metaData.addServer("firstServer", "192.168.1.1", 50, new KeyRange("0", "9"));
-		metaData.addServer("secondServer", "192.168.1.2", 50, new KeyRange("A", "F"));
-		
+		List<ServerNode> servers = new LinkedList<ServerNode>();
+		servers.add(new ServerNode("192.168.1.2", 50));
+		servers.add(new ServerNode("192.168.1.1", 50));
+		for (ServerNode node: servers) {
+			metaData.addServer(node);
+		}
+
 		assertEquals(2, metaData.getServers().size());
-		assertEquals(
-				"192.168.1.1",
-				metaData.getServerMetaData("firstServer").getIpAddress());
-		assertEquals(
-				"192.168.1.2",
-				metaData.getServerMetaData("secondServer").getIpAddress());
-		assertEquals("0", metaData.getServerMetaData("firstServer").getRange().getStart());
-		assertEquals("9", metaData.getServerMetaData("firstServer").getRange().getEnd());
-		assertEquals(50, metaData.getServerMetaData("firstServer").getPort());
+		assertEquals(servers, new LinkedList<ServerNode>(metaData.getServers()));
 	}
 	
 	@Test
 	public void testMarshalMetaDataToJson() {
 		MetaData metaData = new MetaData();
-		metaData.addServer("firstServer", "192.168.1.1", 50, new KeyRange("0", "9"));
-		metaData.addServer("secondServer", "192.168.1.2", 50, new KeyRange("A", "F"));		
+		
+		metaData.addServer(new ServerNode("192.168.1.1", 10000));
+		metaData.addServer(new ServerNode("192.168.1.1", 50001));
+		List<ServerNode> originalServers = new LinkedList<ServerNode>(metaData.getServers());
 		String json = MetaDataTransport.marshalMetaData(metaData);
 
 		MetaData deserialized = MetaDataTransport.unmarshalMetaData(json);
 
 		assertEquals(2, deserialized.getServers().size());
-		assertEquals(
-				"192.168.1.1",
-				deserialized.getServerMetaData("firstServer").getIpAddress());
-		assertEquals(
-				"192.168.1.2",
-				deserialized.getServerMetaData("secondServer").getIpAddress());
-		assertEquals("0", deserialized.getServerMetaData("firstServer").getRange().getStart());
-
+		assertEquals(originalServers, new LinkedList<ServerNode>(deserialized.getServers()));
 	}
 	
 	/**
