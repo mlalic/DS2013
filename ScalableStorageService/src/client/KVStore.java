@@ -5,8 +5,8 @@ import java.io.IOException;
 
 import org.apache.log4j.Logger;
 
-import client.communication.Session;
-import client.communication.TcpSession;
+import common.communication.Session;
+import common.communication.TcpSession;
 import common.messages.KVMessage;
 import common.messages.KVMessage.StatusType;
 import common.messages.KVMessageImpl;

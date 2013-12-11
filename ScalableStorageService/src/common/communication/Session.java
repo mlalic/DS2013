@@ -1,4 +1,4 @@
-package client.communication;
+package common.communication;
 
 import java.io.IOException;
 import java.net.UnknownHostException;

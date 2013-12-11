@@ -1,4 +1,4 @@
-package client.communication;
+package common.communication;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,7 +20,7 @@ public class TcpSession implements Session {
 	InputStream is;
 	OutputStream os;
 
-    private final static int MAX_RESPONSE_SIZE = 122901; //1B+20B+120 KB
+    private final int MAX_RESPONSE_SIZE;
 	
 	/**
 	 * Create an Instance of TcpSession 
@@ -30,6 +30,20 @@ public class TcpSession implements Session {
 	public TcpSession(String host, int port){
 		this.host = host;
 		this.port = port;
+		MAX_RESPONSE_SIZE = 122901; // 1B + 20B + 120KB
+	}
+	
+	/**
+	 * A constructor variant which lets the clients specify a maximum
+	 * size for the response.
+	 * @param host Server domain name/address
+	 * @param port The port the server is listening on
+	 * @param maxResponseSize The maximum size of responses to handle
+	 */
+	public TcpSession(String host, int port, int maxResponseSize) {
+		this.host = host;
+		this.port = port;
+		MAX_RESPONSE_SIZE = maxResponseSize;
 	}
 	
 	/**
