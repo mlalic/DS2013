@@ -13,16 +13,4 @@ public abstract interface KeyHasher {
 	 * @return A hash of the given key
 	 */
 	public String getKeyHash(String key);
-	/**
-	 * @return The representation of the maximum possible hash value, e.g.
-	 * "FFFF" for a hypothetical hasher which returns 2 byte hashes. 
-	 */
-	public String getMaxHash();
-
-	/**
-	 * @return The representation of the minimum possible hash value, e.g.
-	 * "0000" for a hypothetical hasher which returns 2 byte hashes.
-	 */
-	public String getMinHash();
-	
 }

@@ -9,19 +9,6 @@ import org.apache.commons.codec.binary.Hex;
 public class Md5Hasher implements KeyHasher {
 	private final static String DEFAULT_CHARSET = "ASCII";
 	
-	private String minHash;
-	private String maxHash;
-	
-	public Md5Hasher() {
-		// Builds the min/max hash values on instantiation
-		minHash = "";
-		maxHash = "";
-		for (int i = 0; i < 32; ++i) {
-			minHash += "0";
-			maxHash += "F";
-		}
-	}
-
 	@Override
 	public String getKeyHash(String key) {
 		MessageDigest hasher;
@@ -39,16 +26,6 @@ public class Md5Hasher implements KeyHasher {
 		} catch (UnsupportedEncodingException e) {
 			return null;
 		}
-	}
-
-	@Override
-	public String getMaxHash() {
-		return maxHash;
-	}
-
-	@Override
-	public String getMinHash() {
-		return minHash;
 	}
 
 }
