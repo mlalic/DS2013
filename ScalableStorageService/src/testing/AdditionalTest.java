@@ -79,5 +79,36 @@ public class AdditionalTest extends TestCase {
 		assertEquals(50, metaData.getServerMetaData("firstServer").getPort());
 	}
 	
+	@Test
+	public void testMarshalMetaDataToJson() {
+		MetaData metaData = new MetaData();
+		metaData.addServer("firstServer", "192.168.1.1", 50, new KeyRange("0", "9"));
+		metaData.addServer("secondServer", "192.168.1.2", 50, new KeyRange("A", "F"));		
+		String json = MetaDataTransport.marshalMetaData(metaData);
+
+		MetaData deserialized = MetaDataTransport.unmarshalMetaData(json);
+
+		assertEquals(2, deserialized.getServers().size());
+		assertEquals(
+				"192.168.1.1",
+				deserialized.getServerMetaData("firstServer").getIpAddress());
+		assertEquals(
+				"192.168.1.2",
+				deserialized.getServerMetaData("secondServer").getIpAddress());
+		assertEquals("0", deserialized.getServerMetaData("firstServer").getRange().getStart());
+
+	}
+	
+	/**
+	 * Test the situation when the received string value cannot be
+	 * unmarshalled back to a MetaData instance.
+	 */
+	@Test
+	public void testUnmarshalInvalidMetaData() {
+		String json = "Some invalid json string...";
+		
+		MetaData deserialized = MetaDataTransport.unmarshalMetaData(json);
+		
+		assertNull(deserialized);
 	}
 }
