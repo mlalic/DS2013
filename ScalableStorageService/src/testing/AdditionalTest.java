@@ -4,7 +4,9 @@ import junit.framework.TestCase;
 
 import org.junit.Test;
 
+import common.metadata.KeyHasher;
 import common.metadata.KeyRange;
+import common.metadata.Md5Hasher;
 import common.metadata.MetaData;
 import common.metadata.MetaDataTransport;
 
@@ -110,5 +112,27 @@ public class AdditionalTest extends TestCase {
 		MetaData deserialized = MetaDataTransport.unmarshalMetaData(json);
 		
 		assertNull(deserialized);
+	}
+	
+	/**
+	 * Tests for the {@link Md5Hasher}
+	 */
+	@Test
+	public void testMd5Hasher() {
+		KeyHasher hasher = new Md5Hasher();
+
+		// Min value is 32 zeroes
+		final String minValue = hasher.getMinHash();
+		assertEquals(32, minValue.length());
+		for (int i = 0; i < 32; ++i) assertTrue(minValue.charAt(i) == '0');
+		
+		// Max value is 32 Fs
+		final String maxValue = hasher.getMaxHash();
+		assertEquals(32, minValue.length());
+		for (int i = 0; i < 32; ++i) assertTrue(maxValue.charAt(i) == 'F');
+		
+		// A well known hash?
+		final String hash = hasher.getKeyHash("key");
+		assertEquals("3c6e0b8a9c15224a8228b9a98ca1531d", hash);
 	}
 }
