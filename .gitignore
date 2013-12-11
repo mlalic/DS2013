@@ -4,5 +4,13 @@ MANIFEST.MF
 
 # Ignore Eclipse settings too
 .settings/*
+BasicStorageServer/.settings/*
+ScalableStorageService/.settings/*
+BasicStorageServer/*MANIFEST*
+BasicStorageServer/bin/*
+ScalableStorageService/*MANIFEST*
+ScalableStorageService/bin/*
+BasicStorageServer/*.jar
+ScalableStorageService/*.jar
 .classpath
 .project
