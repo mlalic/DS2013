@@ -141,4 +141,59 @@ public class AdditionalTest extends TestCase {
 		assertEquals(servers.get(0), metaData.getResponsibleServer("ffffffffffffffffffffffffffffffff"));
 		
 	}
+	
+	/**
+	 * The predecessor of a given hash is defined to be exactly the server
+	 * preceding the one that the hash would be assigned to.
+	 * Edge case is when the given hash equals a server's hash -- in that case
+	 * the correct answer is that same server, since the key would be assigned
+	 * to the next server in the ring.
+	 * 
+	 * We reuse the ring probe values from {@link #testGetResponsibleServerMultipleServers()}
+	 * in this test and check whether the returned value is the one that precedes the
+	 * server from that test.
+	 */
+	@Test
+	public void testGetPredecessorNode() {
+		MetaData metaData = new MetaData();
+		ArrayList<ServerNode> servers = new ArrayList<ServerNode>();
+		servers.add(new ServerNode("192.168.1.2", 50));
+		servers.add(new ServerNode("192.168.1.100", 50000));
+		servers.add(new ServerNode("192.168.1.1", 50));
+		for (ServerNode node: servers) {
+			metaData.addServer(node);
+		}
+		
+		// NOTE:
+		// The return value of getPredecessor should always be the server that comes
+		// before the server to which the key hash would be assigned to!
+		
+		// Smallest possible key -> should be associated to the first server in the ring
+		assertEquals(servers.get(2), metaData.getPredecessor("00000000000000000000000000000000"));
+		// Key smaller than the hash of server[0] by 1 -> should be associated to server[0]
+		assertEquals(servers.get(2), metaData.getPredecessor("29bcf7cebcb26607d08fd0ea83ccfea3"));
+		// Key equal to hash of server[0] -> by convention it is mapped to the next server in the ring
+		assertEquals(servers.get(0), metaData.getPredecessor("29bcf7cebcb26607d08fd0ea83ccfea4"));
+		// Key greater than the hash of server[0] by 1 -> should associated to server[1]
+		assertEquals(servers.get(0), metaData.getPredecessor("29bcf7cebcb26607d08fd0ea83ccfea5"));
+		// Key easily in the range between [hash(server[0]), hash(server[1])) -> mapped to server[1]
+		assertEquals(servers.get(0), metaData.getPredecessor("3c6e0b8a9c15224a8228b9a98ca1531d"));
+		// Key lesser than hash(server[1]) by 1 -> mapped to server[1]
+		assertEquals(servers.get(0), metaData.getPredecessor("542f448eaa4b54a08c211a07c2d0438e"));
+		// Key equal to hash(server[1]) -> mapped to server[2] (half open interval on the right)
+		assertEquals(servers.get(1), metaData.getPredecessor("542f448eaa4b54a08c211a07c2d0438f"));		
+		// Key greater than the hash of server[1] by 1 -> mapped to server[2]
+		assertEquals(servers.get(1), metaData.getPredecessor("542f448eaa4b54a08c211a07c2d04390"));
+		// Key easily in [hash(server[1], hash(server[2])) -> mapped to server[2]
+		assertEquals(servers.get(1), metaData.getPredecessor("9fffffffffffffffffffffffffffffff"));
+		// Key equal to hash(server[2]) -> mapped to server[0] (wrap around!)
+		assertEquals(servers.get(2), metaData.getPredecessor("ff3daeb0db7cbb8afe90d176338c765b"));
+		// Key greater than hash(server[2]) by 1 -> mapped to server[0] (wrap around!)
+		assertEquals(servers.get(2), metaData.getPredecessor("ff3daeb0db7cbb8afe90d176338c765c"));
+		// Key easily in range [hash(server[2]), hash(server[0])) -> mapped to server[0]
+		assertEquals(servers.get(2), metaData.getPredecessor("fffdaeb0db7cbb8afe90d176338c765b"));
+		// Largest possible key is in [hash(server[2]), hash(server[0])) -> mapped to server[0]
+		assertEquals(servers.get(2), metaData.getPredecessor("ffffffffffffffffffffffffffffffff"));
+	}
+	
 }
