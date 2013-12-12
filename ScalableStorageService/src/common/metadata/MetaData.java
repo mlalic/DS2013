@@ -5,14 +5,18 @@ import java.util.Map.Entry;
 import java.util.NavigableMap;
 import java.util.TreeMap;
 
+import org.apache.log4j.Logger;
+
 public class MetaData {
 	
 	private NavigableMap<String, ServerNode> serverRing = new TreeMap<String, ServerNode>();
+	private static Logger logger = Logger.getRootLogger();
 
 	/**
 	 * Adds a new server node to the circle.
 	 */
 	public void addServer(ServerNode newNode) {
+		logger.info("Adding new server node at position " + newNode.getHash());
 		serverRing.put(newNode.getHash(), newNode);
 	}
 	
@@ -20,6 +24,7 @@ public class MetaData {
 	 * Removes the given server node from the circle.
 	 */
 	public void removeServer(ServerNode nodeToRemove) {
+		logger.info("Removing server node from position " + nodeToRemove.getHash());
 		serverRing.remove(nodeToRemove.getHash());
 	}
 	
@@ -35,6 +40,7 @@ public class MetaData {
 	 * @return The server node responsible for the given key
 	 */
 	public ServerNode getResponsibleServer(String key) {
+		logger.info("Getting responsible server for " + key);
 		if (serverRing.size() == 0) {
 			// No node will be found anyway
 			return null;
@@ -55,6 +61,7 @@ public class MetaData {
 	 * @return
 	 */
 	public ServerNode getPredecessor(String key) {
+		logger.info("Getting predecessor for " + key);
 		if (serverRing.size() == 0) {
 			return null;
 		}
