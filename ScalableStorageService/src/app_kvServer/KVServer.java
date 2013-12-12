@@ -19,6 +19,7 @@ public class KVServer extends Thread {
 	private int port;
 	private boolean running;
 	
+	private int test;
 	
 	/**
 	 * Start KV Server at given port
