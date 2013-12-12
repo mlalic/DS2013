@@ -1,5 +1,6 @@
 package testing;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -67,5 +68,77 @@ public class AdditionalTest extends TestCase {
 		// A well known hash is correct?
 		final String hash = hasher.getKeyHash("key");
 		assertEquals("3c6e0b8a9c15224a8228b9a98ca1531d", hash);
+	}
+	
+	@Test
+	public void testGetResponsibleServerSimple() {
+		MetaData metaData = new MetaData();
+		ServerNode server1 = new ServerNode("192.168.1.2", 50);
+		ServerNode server2 = new ServerNode("192.168.1.1", 50);
+		metaData.addServer(server1);
+		metaData.addServer(server2);
+		
+		// When there are only two servers in the ring, the server responsible
+		// for a server's hash value is the other server in the ring
+		assertEquals(server2, metaData.getResponsibleServer(server1.getHash()));
+		assertEquals(server1, metaData.getResponsibleServer(server2.getHash()));
+	}
+	
+	/**
+	 * When there is only one server in the ring, it is responsible for all keys
+	 */
+	@Test
+	public void testGetResponsibleServerSingleServer() {
+		MetaData metaData = new MetaData();
+		ServerNode server = new ServerNode("192.168.1.1", 50);
+		metaData.addServer(server);
+		
+		// It is responsible for its own hash! (in all other cases, the server is not responsible for its own hash value).
+		assertEquals(server, metaData.getResponsibleServer(server.getHash()));
+		// Responsible for a random key
+		assertEquals(server, metaData.getResponsibleServer("3c6e0b8a9c15224a8228b9a98ca1531d"));
+		// Responsible for the largest and smallest hash
+		assertEquals(server, metaData.getResponsibleServer("00000000000000000000000000000000"));
+		assertEquals(server, metaData.getResponsibleServer("ffffffffffffffffffffffffffffffff"));
+	}
+	
+	@Test
+	public void testGetResponsibleServerMultipleServers() {
+		MetaData metaData = new MetaData();
+		ArrayList<ServerNode> servers = new ArrayList<ServerNode>();
+		servers.add(new ServerNode("192.168.1.2", 50));
+		servers.add(new ServerNode("192.168.1.100", 50000));
+		servers.add(new ServerNode("192.168.1.1", 50));
+		for (ServerNode node: servers) {
+			metaData.addServer(node);
+		}
+		
+		// Smallest possible key -> should be associated to the first server in the ring
+		assertEquals(servers.get(0), metaData.getResponsibleServer("00000000000000000000000000000000"));
+		// Key smaller than the hash of server[0] by 1 -> should be associated to server[0]
+		assertEquals(servers.get(0), metaData.getResponsibleServer("29bcf7cebcb26607d08fd0ea83ccfea3"));
+		// Key equal to hash of server[0] -> by convention it is mapped to the next server in the ring
+		assertEquals(servers.get(1), metaData.getResponsibleServer("29bcf7cebcb26607d08fd0ea83ccfea4"));
+		// Key greater than the hash of server[0] by 1 -> should associated to server[1]
+		assertEquals(servers.get(1), metaData.getResponsibleServer("29bcf7cebcb26607d08fd0ea83ccfea5"));
+		// Key easily in the range between [hash(server[0]), hash(server[1])) -> mapped to server[1]
+		assertEquals(servers.get(1), metaData.getResponsibleServer("3c6e0b8a9c15224a8228b9a98ca1531d"));
+		// Key lesser than hash(server[1]) by 1 -> mapped to server[1]
+		assertEquals(servers.get(1), metaData.getResponsibleServer("542f448eaa4b54a08c211a07c2d0438e"));
+		// Key equal to hash(server[1]) -> mapped to server[2] (half open interval on the right)
+		assertEquals(servers.get(2), metaData.getResponsibleServer("542f448eaa4b54a08c211a07c2d0438f"));		
+		// Key greater than the hash of server[1] by 1 -> mapped to server[2]
+		assertEquals(servers.get(2), metaData.getResponsibleServer("542f448eaa4b54a08c211a07c2d04390"));
+		// Key easily in [hash(server[1], hash(server[2])) -> mapped to server[2]
+		assertEquals(servers.get(2), metaData.getResponsibleServer("9fffffffffffffffffffffffffffffff"));
+		// Key equal to hash(server[2]) -> mapped to server[0] (wrap around!)
+		assertEquals(servers.get(0), metaData.getResponsibleServer("ff3daeb0db7cbb8afe90d176338c765b"));
+		// Key greater than hash(server[2]) by 1 -> mapped to server[0] (wrap around!)
+		assertEquals(servers.get(0), metaData.getResponsibleServer("ff3daeb0db7cbb8afe90d176338c765c"));
+		// Key easily in range [hash(server[2]), hash(server[0])) -> mapped to server[0]
+		assertEquals(servers.get(0), metaData.getResponsibleServer("fffdaeb0db7cbb8afe90d176338c765b"));
+		// Largest possible key is in [hash(server[2]), hash(server[0])) -> mapped to server[0]
+		assertEquals(servers.get(0), metaData.getResponsibleServer("ffffffffffffffffffffffffffffffff"));
+		
 	}
 }
