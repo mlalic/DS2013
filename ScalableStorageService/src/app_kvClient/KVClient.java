@@ -1,8 +1,5 @@
 package app_kvClient;
 
-import app_kvClient.commands.Command;
-import app_kvClient.commands.CommandFactory;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -12,12 +9,12 @@ import logger.LogSetup;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
-//import org.apache.log4j.Logger;
+import app_kvClient.commands.Command;
+import app_kvClient.commands.CommandFactory;
 
-//import logging.MyLogger;
 
 public class KVClient {
-    private final static String PROMPT = "BasicStorageServer> ";
+    private final static String PROMPT = "ScalableStorageService> ";
     
     private static Logger logger = Logger.getRootLogger();
 
