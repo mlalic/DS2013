@@ -48,6 +48,17 @@ public class KVStore implements KVCommInterface {
      */
 	public void connect() throws Exception {
 	    // TODO Define the semantics of a connect method call in the context of a distributed store
+		
+		// For now, it tries to establish a connection with any server it currently knows about.
+		// If unsuccessful, an exception will be thrown.
+		// If successful, the connection is immediately discarded.
+		// This implementation keeps the behavior the same as what it was when there was only one KVServer.
+		if (metaData.getServers().size() > 0) {
+			ServerNode node = metaData.getServers().iterator().next();
+			Session session = new TcpSession(node.getIpAddress(), node.getPort());
+			session.connect();
+			session.disconnect();
+		}
 	}
 	
 	/**
