@@ -1,6 +1,7 @@
 package common.metadata;
 
 public class ServerNode {
+	private String nodeName;
 	private String ipAddress;
 	private int port;
 	private transient final KeyHasher hasher = new Md5Hasher();
@@ -10,12 +11,25 @@ public class ServerNode {
 		this.port = port;
 	}
 	
+	public ServerNode(String nodeName, String ipAddress, int port) {
+		this.nodeName = nodeName;
+		this.ipAddress = ipAddress;
+		this.port = port;
+	}
+	
 	public String getName() {
+		if (nodeName == null) {
+			return getNodeAddress();
+		}
+		return nodeName;
+	}
+	
+	public String getNodeAddress() {
 		return ipAddress + ":" + port;
 	}
 	
 	public String getHash() {
-		return hasher.getKeyHash(getName()); 
+		return hasher.getKeyHash(getNodeAddress()); 
 	}
 
 	public String getIpAddress() {
@@ -32,6 +46,8 @@ public class ServerNode {
 		int result = 1;
 		result = prime * result
 				+ ((ipAddress == null) ? 0 : ipAddress.hashCode());
+		result = prime * result
+				+ ((nodeName == null) ? 0 : nodeName.hashCode());
 		result = prime * result + port;
 		return result;
 	}
@@ -50,10 +66,15 @@ public class ServerNode {
 				return false;
 		} else if (!ipAddress.equals(other.ipAddress))
 			return false;
+		if (nodeName == null) {
+			if (other.nodeName != null)
+				return false;
+		} else if (!nodeName.equals(other.nodeName))
+			return false;
 		if (port != other.port)
 			return false;
 		return true;
 	}
-	
+
 	
 }

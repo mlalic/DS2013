@@ -163,7 +163,7 @@ public class KVStore implements KVCommInterface {
 					"Trying to send a message %s. try #%d, responsible node: %s",
 					message.getStatus().toString(),
 					tryNumber,
-					responsibleNode.getName()));
+					responsibleNode.getNodeAddress()));
 			
 			// Try contacting this node
 			KVMessage response = sendToNode(message, responsibleNode);
@@ -228,25 +228,25 @@ public class KVStore implements KVCommInterface {
 	 */
 	private KVMessage sendToNode(KVMessage message, ServerNode node) {
 		// First establish a connection to the node
-		logger.info(String.format("Establishing a connection to %s", node.getName()));
+		logger.info(String.format("Establishing a connection to %s", node.getNodeAddress()));
 		Session session = connectToNode(node);
 		if (session == null) {
 			// Unable to establish a connection to the node...
 			logger.error(String.format(
-					"Unable to establish a connection to %s", node.getName()));
+					"Unable to establish a connection to %s", node.getNodeAddress()));
 			return null;
 		}
 		// Then send the message and return the received response
 		try {
-			logger.info(String.format("Sending message to %s", node.getName()));
+			logger.info(String.format("Sending message to %s", node.getNodeAddress()));
 			sendMessage(message, session);
 		} catch (IOException e) {
 			// Cannot communicate with the given node -- no response will be received.
 			return null;
 		}
-		logger.info(String.format("Waiting for response from %s", node.getName()));
+		logger.info(String.format("Waiting for response from %s", node.getNodeAddress()));
 		final KVMessage response = receiveMessage(session);
-		logger.info(String.format("Response received from %s", node.getName()));
+		logger.info(String.format("Response received from %s", node.getNodeAddress()));
 		// Terminate the session to avoid a resource leak
 		// TODO Implement a client-side session cache? Before instantiating a new session, try to reuse the cached one. If the server has closed the socket, reconnect and try again. May increase the efficiency of client-side requests, but could potentially cause too many communication sockets to stay open on the server side (would require a scheme to terminate inactive client sockets on the server side after a certain amount of time).
 		session.disconnect();

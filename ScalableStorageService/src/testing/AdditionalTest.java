@@ -33,16 +33,16 @@ public class AdditionalTest extends TestCase {
 	@Test
 	public void testMarshalMetaDataToJson() {
 		MetaData metaData = new MetaData();
-		
 		metaData.addServer(new ServerNode("192.168.1.1", 10000));
-		metaData.addServer(new ServerNode("192.168.1.1", 50001));
+		metaData.addServer(new ServerNode("node2", "192.168.1.1", 50001));
 		List<ServerNode> originalServers = new LinkedList<ServerNode>(metaData.getServers());
 		String json = MetaDataTransport.marshalMetaData(metaData);
-
+		
 		MetaData deserialized = MetaDataTransport.unmarshalMetaData(json);
 
 		assertEquals(2, deserialized.getServers().size());
 		assertEquals(originalServers, new LinkedList<ServerNode>(deserialized.getServers()));
+		
 	}
 	
 	/**
