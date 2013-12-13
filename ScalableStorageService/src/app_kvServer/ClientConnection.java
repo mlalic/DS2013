@@ -8,12 +8,14 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.log4j.Logger;
 
 import client.KVStore;
+import app_kvServer.KVServer.ServerStatusType;
 import app_kvServer.commands.ServerCommand;
 import app_kvServer.commands.ServerCommandFactory;
 import common.messages.KVMessage;
 import common.messages.KVMessageImpl;
 import common.messages.KVMessageMarshaller;
 import common.messages.KVMessage.StatusType;
+import common.metadata.MetaData;
 
 public class ClientConnection implements Runnable {
 	
@@ -29,11 +31,18 @@ public class ClientConnection implements Runnable {
 	private boolean isOpen;
 	
 	private ConcurrentHashMap<String, String> serverStorage = new ConcurrentHashMap<String, String>();
+	private ServerStatusType serverStatus;
+	private MetaData metaData;
+	private String nodeName;
 	
-	public ClientConnection(Socket clientSocket,ConcurrentHashMap<String, String> serverStorage) {
+	public ClientConnection(Socket clientSocket, ConcurrentHashMap<String, String> serverStorage, 
+			final ServerStatusType serverStatus, final MetaData metadata, String nodeName) {
 		this.clientSocket = clientSocket;
 		this.serverStorage = serverStorage;
-		isOpen = true;
+		this.serverStatus = serverStatus;
+		this.metaData = metadata;
+		this.nodeName = nodeName;
+		this.isOpen = true;
 	}
 	
 	/**
@@ -76,7 +85,7 @@ public class ClientConnection implements Runnable {
 	 */
 	public void run() {
 		// The factory instance to which proper command instantiation is delegated
-		final ServerCommandFactory factory = new ServerCommandFactory(serverStorage);		
+		final ServerCommandFactory factory = new ServerCommandFactory(serverStorage, serverStatus, metaData, nodeName);		
 
 		try {
 			output = clientSocket.getOutputStream();
