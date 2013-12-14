@@ -2,6 +2,8 @@ package app_kvServer;
 
 import java.io.IOException;
 import java.net.*;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 import logger.LogSetup;
@@ -10,6 +12,7 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import common.metadata.MetaData;
+import common.metadata.ServerNode;
 
 
 public class KVServer extends Thread {
@@ -23,13 +26,10 @@ public class KVServer extends Thread {
 		STOPPED
 	}
 	
-	private String nodeName;
-	private MetaData metaData = null;
-	private ServerStatusType serverStatus;
 	private ServerSocket serverSocket = null;
-	private ConcurrentHashMap<String, String> serverStorage = new ConcurrentHashMap<String, String>();
 	private int port;
 	private boolean running;
+	private ServerContext serverContext;
 	
 	/**
 	 * Start KV Server at given port
@@ -37,14 +37,7 @@ public class KVServer extends Thread {
 	 */
 	public KVServer(int port, String nodeName) {
 		this.port = port;
-		this.serverStatus = ServerStatusType.IDLE;
-		this.nodeName = nodeName;
-		try {
-			new LogSetup("logs/server/server" + "_" + nodeName + ".log", Level.ALL);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		this.serverContext = new ServerContext(nodeName, ServerStatusType.IDLE);
 	}
 
     /**
@@ -59,7 +52,7 @@ public class KVServer extends Thread {
 	        while(isRunning()){
 	            try {
 	                Socket client = serverSocket.accept();                
-	                ClientConnection connection = new ClientConnection(client, serverStorage, serverStatus, metaData, nodeName);
+	                ClientConnection connection = new ClientConnection(client, serverContext);
 	                new Thread(connection).start();
 	                
 	                logger.info("Connected to " 
@@ -108,28 +101,22 @@ public class KVServer extends Thread {
         }
     }
     
-    public ServerStatusType getServerStatus() {
-    	return serverStatus;
-    }
-    
     /**
      * Main entry point for the echo server application. 
-     * @param args contains the port number at args[0].
+     * @param args contains the server(node) name at args[1] and the port number at args[0].
      */
-    
-    /*
-  
     public static void main(String[] args) {
     	try {
-			new LogSetup("logs/server/server.log", Level.ALL);
-			if(args.length != 1) {
+    		String nodeName = args[1];
+    		new LogSetup("logs/server/server" + "_" + nodeName + ".log", Level.ALL);
+			if(args.length != 2) {
                 System.out.println("Error! Invalid number of arguments!");
 				System.out.println("Usage: Server <port>!");
 				
 				logger.error("Error! Invalid number of arguments!");
 			} else {
 				int port = Integer.parseInt(args[0]);
-				new KVServer(port, "node1").start();
+				new KVServer(port, nodeName).start();
 			}
 		} catch (IOException e) {
 			System.out.println("Error! Unable to initialize logger!");
@@ -146,6 +133,5 @@ public class KVServer extends Thread {
 		
 		
     }
-    */
     
 }

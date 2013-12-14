@@ -30,18 +30,11 @@ public class ClientConnection implements Runnable {
 	
 	private boolean isOpen;
 	
-	private ConcurrentHashMap<String, String> serverStorage = new ConcurrentHashMap<String, String>();
-	private ServerStatusType serverStatus;
-	private MetaData metaData;
-	private String nodeName;
+	private ServerContext serverContext;
 	
-	public ClientConnection(Socket clientSocket, ConcurrentHashMap<String, String> serverStorage, 
-			final ServerStatusType serverStatus, final MetaData metadata, String nodeName) {
+	public ClientConnection(Socket clientSocket, ServerContext serverContext) {
 		this.clientSocket = clientSocket;
-		this.serverStorage = serverStorage;
-		this.serverStatus = serverStatus;
-		this.metaData = metadata;
-		this.nodeName = nodeName;
+		this.serverContext = serverContext;
 		this.isOpen = true;
 	}
 	
@@ -52,7 +45,7 @@ public class ClientConnection implements Runnable {
 	 * or null when the key is wrong
 	 */
 	public String get(String key) {
-		return serverStorage.get(key);
+		return serverContext.getServerStorage().get(key);
 	}
 	
 	
@@ -85,7 +78,7 @@ public class ClientConnection implements Runnable {
 	 */
 	public void run() {
 		// The factory instance to which proper command instantiation is delegated
-		final ServerCommandFactory factory = new ServerCommandFactory(serverStorage, serverStatus, metaData, nodeName);		
+		final ServerCommandFactory factory = new ServerCommandFactory(serverContext);		
 
 		try {
 			output = clientSocket.getOutputStream();

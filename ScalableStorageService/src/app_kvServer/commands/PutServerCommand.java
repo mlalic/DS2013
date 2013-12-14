@@ -1,10 +1,9 @@
 package app_kvServer.commands;
 
-import java.util.concurrent.ConcurrentHashMap;
-
 import org.apache.log4j.Logger;
 
 import app_kvServer.KVServer.ServerStatusType;
+import app_kvServer.ServerContext;
 import common.messages.*;
 import common.metadata.*;
 
@@ -12,18 +11,8 @@ public class PutServerCommand extends ServerCommand {
 	
 	private static Logger logger = Logger.getRootLogger();
 	
-	protected ConcurrentHashMap<String, String> serverStorage;
-	private ServerStatusType serverStatus;
-	private String nodeName;
-	private MetaData metaData;
-	
-	public PutServerCommand(String key, String value, final ConcurrentHashMap<String, String> serverStorage, 
-			ServerStatusType serverStatus, String nodeName, MetaData metaData) {
-		super(key, value);
-		this.serverStorage = serverStorage;
-		this.serverStatus = serverStatus;
-		this.nodeName = nodeName;
-		this.metaData = metaData;
+	public PutServerCommand(String key, String value, final ServerContext serverContext) {
+		super(key, value, serverContext);
 	}
 
 	/**
@@ -34,21 +23,20 @@ public class PutServerCommand extends ServerCommand {
 	 */
 	@Override
 	public KVMessage execute() {
-		if (serverStatus.equals(ServerStatusType.STARTED)) {
-			ServerNode responsibleServer = metaData.getResponsibleServer(nodeName);
-			if (responsibleServer.getName().equals(nodeName)) {
+		if (serverContext.getServerStatus().equals(ServerStatusType.STARTED)) {
+			if (isResponsibleFor(key)) {
 				try {
 					boolean oldValue = false;
-					oldValue = serverStorage.containsKey(key);
+					oldValue = serverContext.getServerStorage().containsKey(key);
 					if (!oldValue) {
-						serverStorage.put(key, value);
+						serverContext.getServerStorage().put(key, value);
 						responseMessage = new KVMessageImpl(KVMessage.StatusType.PUT_SUCCESS, key, value);
 						logger.info("Server has executed PUT_SUCCESS");
 						return responseMessage;
 					}
 					else if ("null".equals(value)){
 						try {
-							serverStorage.remove(key);
+							serverContext.getServerStorage().remove(key);
 							responseMessage = new KVMessageImpl(KVMessage.StatusType.DELETE_SUCCESS, key, value);
 							logger.info("Server has executed DELETE_SUCCESS");
 							return responseMessage;
@@ -60,7 +48,7 @@ public class PutServerCommand extends ServerCommand {
 						}
 					}
 					else {
-						serverStorage.put(key, value);
+						serverContext.getServerStorage().put(key, value);
 						responseMessage = new KVMessageImpl(KVMessage.StatusType.PUT_UPDATE, key, value);
 						logger.info("Server has executed PUT_UPDATE");
 						return responseMessage;
@@ -73,12 +61,12 @@ public class PutServerCommand extends ServerCommand {
 			}
 			else {
 				// If the server is not responsible for that range, it is sending new updated meta data to the client
-				String transportMetaData = MetaDataTransport.marshalMetaData(metaData);
+				String transportMetaData = MetaDataTransport.marshalMetaData(serverContext.getMetaData());
 				responseMessage = new KVMessageImpl(KVMessage.StatusType.SERVER_NOT_RESPONSIBLE, key, transportMetaData);
 				logger.info("Server is not responsible for that key range. Updated meta data has been sent.");
 				return responseMessage;
 			}
-		} else if (serverStatus.equals(ServerStatusType.LOCKED_WRITE)) {
+		} else if (serverContext.getServerStatus().equals(ServerStatusType.LOCKED_WRITE)) {
 			responseMessage = new KVMessageImpl(KVMessage.StatusType.SERVER_WRITE_LOCK, key, value);
 			logger.info("Sever is locked for writing.");
 			return responseMessage;
