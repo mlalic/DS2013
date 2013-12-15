@@ -29,7 +29,7 @@ public class ECSClient {
         String line = null;
         
         //Set Initial Context Before Offering Prompt
-        Command initCommand = factory.createCommand("init "+args[0]);
+        Command initCommand = factory.createCommand("ecsInit "+args[0]);
         initCommand.execute();
         
         while (true) {

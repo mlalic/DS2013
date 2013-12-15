@@ -13,7 +13,7 @@ import common.metadata.ServerNode;
 
 public class ECS {
     private String configFile; 
-    private HashSet<ServerNode> nodes;
+    private HashSet<ServerNode> availableNodes;
     private MetaData metaData;
     private static Logger logger = Logger.getRootLogger();
     
@@ -35,7 +35,7 @@ public class ECS {
             BufferedReader reader = new BufferedReader(
                     new FileReader(configFile));
             String line = " ";
-            nodes = new HashSet<ServerNode>();
+            availableNodes = new HashSet<ServerNode>();
             metaData = new MetaData();
             while((line=reader.readLine())!=null){
                 String[] parts = line.split(" ");
@@ -46,8 +46,7 @@ public class ECS {
                 }
                 ServerNode node = new ServerNode(parts[0], parts[1],
                         Integer.parseInt(parts[2]));
-                metaData.addServer(node);
-                nodes.add(node);
+                availableNodes.add(node);
             }
             reader.close();
             return true;
@@ -67,8 +66,16 @@ public class ECS {
      * Returns the Node List
      * @return nodes
      */
-    public HashSet<ServerNode> getNodes(){
-        return nodes;
+    public HashSet<ServerNode> getAvailableNodes(){
+        return availableNodes;
+    }
+    
+    /***
+     * Sets the Available Node Set
+     * @param Set of Nodes
+     */
+    public void setAvailableNodes(HashSet<ServerNode> nodes){
+        this.availableNodes = nodes;
     }
     
     /***
@@ -77,5 +84,13 @@ public class ECS {
      */
     public MetaData getMetaData(){
         return metaData;
+    }
+    
+    /***
+     *Sets the Metadata
+     *@param Metadata
+     */
+    public void setMetaData(MetaData metaData){
+        this.metaData = metaData;
     }
 }

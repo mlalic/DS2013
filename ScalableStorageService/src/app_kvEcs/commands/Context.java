@@ -8,7 +8,7 @@ import app_kvEcs.communication.kvECSCommInterface;
 
 
 public class Context {
-    private ECS session = null;
+    private ECS ecs = null;
     private PrintStream outputStream = null;
     private ArrayList<kvECSCommInterface> connections = null;
    
@@ -20,12 +20,12 @@ public class Context {
         this.connections = connections;
     }
 
-    public ECS getSession() {
-        return session;
+    public ECS getECS() {
+        return ecs;
     }
 
-    public void setSession(ECS session) {
-        this.session = session;
+    public void setECS(ECS ecs) {
+        this.ecs = ecs;
     }
 
     public PrintStream getOutputStream() {

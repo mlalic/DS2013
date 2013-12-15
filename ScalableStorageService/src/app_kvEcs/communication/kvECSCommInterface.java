@@ -22,4 +22,15 @@ public interface kvECSCommInterface {
      * @return a message that contains acknowledgement.
      */
     public KVMessage sendMessage(KVMessage message);
+    
+    /**
+     * Set the name of the node which this connection represents
+     * @param name the name of the host
+     */
+    public void setHostName(String name);
+    
+    /**
+     * Returns the name of the node which this connection represents
+     */
+    public String getHostName();
 }

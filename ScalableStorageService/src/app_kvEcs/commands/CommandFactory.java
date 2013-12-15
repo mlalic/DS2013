@@ -23,14 +23,26 @@ public class CommandFactory {
         // Decide which concrete class to instantiate
         Command command = null;
         String[] parameters = Arrays.copyOfRange(parts, 1, parts.length);
-        if (commandName.equals("init")) {
-            command = new InitCommand(context, parameters);
+        if (commandName.equals("ecsInit")) {
+            command = new ECSInitCommand(context, parameters);
         }
         else if (commandName.equals("quit")){
             command = new QuitCommand(context, parameters);
         }
         else if (commandName.equalsIgnoreCase("initService")){
             command = new InitServiceCommand(context, parameters);
+        }
+        else if (commandName.equals("start")){
+            command = new StartCommand(context, parameters);
+        }
+        else if (commandName.equals("stop")){
+            command = new StopCommand(context, parameters);
+        }
+        else if (commandName.equals("shutdown")){
+            command = new ShutdownCommand(context, parameters);
+        }
+        else if (commandName.equalsIgnoreCase("addNode")){
+            command = new AddNodeCommand(context, parameters);
         }
         // No concrete class matches the command name
         if (command == null) {

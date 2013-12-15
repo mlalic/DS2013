@@ -11,6 +11,7 @@ public class kvECSComm implements kvECSCommInterface {
 
     private Session session;
     private KVMessageMarshaller marsh;
+    private String name;
     @Override
     public void connect(String ip, int port) throws Exception {
         session = new TcpSession(ip, port);
@@ -36,6 +37,17 @@ public class kvECSComm implements kvECSCommInterface {
             return null;
         }
         
+    }
+
+    @Override
+    public void setHostName(String name){
+        this.name = name;
+    }
+    
+    @Override
+    public String getHostName() {
+        // TODO Auto-generated method stub
+        return null;
     }
 
 }

@@ -15,4 +15,24 @@ public class kvMessageBuilder {
     public static KVMessage buildStartMessage(){
         return new KVMessageImpl(KVMessage.StatusType.START_SERVER);
     }
+    
+    public static KVMessage buildStopMessage(){
+        return new KVMessageImpl(KVMessage.StatusType.STOP_SERVER);
+    }
+    
+    public static KVMessage buildShutdownMessage(){
+        return new KVMessageImpl(KVMessage.StatusType.SHUT_DOWN);
+    }
+    
+    public static KVMessage buildWriteLockMessage(){
+        return new KVMessageImpl(KVMessage.StatusType.LOCK_WRITE);
+    }
+    
+    public static KVMessage buildReleaseLockMessage(){
+        return new KVMessageImpl(KVMessage.StatusType.UNLOCK_WRITE);
+    }
+    
+    public static KVMessage buildMoveMessage(){
+        return new KVMessageImpl(KVMessage.StatusType.MOVE_DATA);
+    }
 }
