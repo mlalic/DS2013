@@ -84,7 +84,7 @@ public class ClientConnection implements Runnable {
 			output = clientSocket.getOutputStream();
 			input = clientSocket.getInputStream();
 			
-			while(isOpen) {
+			while (isOpen) {
 				try {
 					
 					//receive message (request)
@@ -123,7 +123,7 @@ public class ClientConnection implements Runnable {
 				/* connection either terminated by the client or lost due to 
 				 * network problems*/	
 				} catch (Exception ioe) {
-					logger.error("Error! Connection lost!");
+					logger.error("Error! Connection lost!", ioe);
 					isOpen = false;
 				}				
 			}
@@ -158,6 +158,11 @@ public class ClientConnection implements Runnable {
 		byte[] inDataBuff = new byte[bufferSize];
         while (true) {
             int bytesRead = input.read(inDataBuff, 0, bufferSize);
+            if (bytesRead == -1) {
+            	// EOF
+            	logger.info("End of file for the client connection reached...");
+            	return null;
+            }
             System.arraycopy(inDataBuff, 0, inData, alreadyRead, bytesRead);
             alreadyRead += bytesRead;
             if (alreadyRead >= MAX_MESSAGE_SIZE) {
