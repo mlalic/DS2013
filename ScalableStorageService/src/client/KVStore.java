@@ -176,10 +176,10 @@ public class KVStore implements KVCommInterface {
 				updateMetaData(response.getValue());
 			} else if (response.getStatus() == StatusType.SERVER_STOPPED) {
 				// TODO Try again in a while or propagate the error to the client?
-				
+				logger.info("Server was stopped. Waiting and then retrying...");
 			} else if (response.getStatus() == StatusType.SERVER_WRITE_LOCK) {
 				// TODO Try again in a while or propagate the error to the client?
-				
+				logger.info("Server was locked for writes. Waiting and then retrying...");		
 			} else {
 				// All other responses indicate that the correct node was contacted and
 				// the operation was performed.
