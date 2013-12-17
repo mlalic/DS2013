@@ -107,15 +107,16 @@ public class KVServer extends Thread {
      */
     public static void main(String[] args) {
     	try {
-    		String nodeName = args[1];
-    		new LogSetup("logs/server/server" + "_" + nodeName + ".log", Level.ALL);
 			if(args.length != 2) {
                 System.out.println("Error! Invalid number of arguments!");
 				System.out.println("Usage: Server <port>!");
 				
 				logger.error("Error! Invalid number of arguments!");
 			} else {
+	    		String nodeName = args[1];
 				int port = Integer.parseInt(args[0]);
+
+				new LogSetup("logs/server/server" + "_" + nodeName + ".log", Level.ALL);
 				new KVServer(port, nodeName).start();
 			}
 		} catch (IOException e) {
