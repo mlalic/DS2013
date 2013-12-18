@@ -1,16 +1,15 @@
 package app_kvServer;
 
-import java.util.concurrent.ConcurrentHashMap;
+import app_kvServer.KVServer.ServerStatusType;
 
 import common.metadata.MetaData;
-import app_kvServer.KVServer.ServerStatusType;
 
 public class ServerContext {
 
 	private String nodeName;
 	private ServerStatusType serverStatus;
 	private MetaData metaData;
-	private ConcurrentHashMap<String, String> serverStorage = new ConcurrentHashMap<String, String>();
+	private ServerStorage serverStorage = new InMemoryServerStorage();
 	
 	public ServerContext(String nodeName, ServerStatusType serverStatus) {
 		this.nodeName = nodeName;
@@ -41,11 +40,11 @@ public class ServerContext {
 		this.metaData = metaData;
 	}
 
-	public ConcurrentHashMap<String, String> getServerStorage() {
+	public ServerStorage getServerStorage() {
 		return serverStorage;
 	}
 
-	public void setServerStorage(ConcurrentHashMap<String, String> serverStorage) {
+	public void setServerStorage(ServerStorage serverStorage) {
 		this.serverStorage = serverStorage;
 	}
 	
