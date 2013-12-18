@@ -75,6 +75,21 @@ public class MetaData {
 	}
 	
 	/**
+	 * @param node The node whose successor should be found
+	 * @return A node which is the successor of the given node in the ring.
+	 * 			<code>null</code> if the node isn't found in the ring and so can have no successor in the ring. 
+	 */
+	public ServerNode getSuccessor(ServerNode node) {
+		final String nodeHash = node.getHash();
+		if (!serverRing.containsKey(nodeHash)) {
+			return null;
+		}
+		// The server responsible for the given node's hash is by definition of the "is-responsible"
+		// predicate exactly the successor of the given node in the ring.
+		return getResponsibleServer(nodeHash);
+	}
+	
+	/**
 	 * Returns a collection of all server nodes found in the current
 	 * cluster.
 	 */
