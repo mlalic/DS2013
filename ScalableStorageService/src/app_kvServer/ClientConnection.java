@@ -106,13 +106,24 @@ public class ClientConnection implements Runnable {
 			        	continue;
 			        }
 			        
-			        logger.info("Server got a message from the client.");
+			        logger.info("Server got a message from the client: " + requestMessage.getStatus().toString());
 					
 					// create the command
 					ServerCommand serverCommand = factory.createServerCommand(requestMessage);
+					if (serverCommand == null) {
+						// Unknown command ...
+						logger.error("Server received an unknown command.");
+						writeResponse(output, createErrorResponse("Unknown command"));
+						continue;
+					}
 					
 					//execute command and get the responseMessage as the result
 					KVMessage responseMessage = serverCommand.execute();
+					if (responseMessage == null) {
+						logger.error("Error processing the command - no response generated.");
+						writeResponse(output, createErrorResponse("Error processing the command."));
+						continue;
+					}
 					
 					logger.info("Server has successfully executed request and made response for the key: " 
 							+ responseMessage.getKey() + " and value: " + responseMessage.getValue());
