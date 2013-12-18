@@ -33,15 +33,12 @@ public class UpdateMetaDataCommandMessage extends ServerCommand {
 			logger.error("Exception trying to unmarschal mata data.");
 			return responseMessage;
 		}
-		return null;
+		return responseMessage;
 	}
 
 	@Override
 	public boolean isValid() {
-		if (serverContext.getMetaData() != null) {
-			return true;
-		}
-		return false;
+		return true;
 	}
 
 }
