@@ -88,15 +88,26 @@ public class InitServiceCommand extends Command{
                 connection.setHostName(s.getName());
                 connection.connect(s.getIpAddress(), s.getPort());
                 connections.add(connection);
-                connection.sendMessage(kvMessageBuilder.
-                        buildUpdateMetaDataMessage(
+                KVMessage response = connection.sendMessage(
+                		kvMessageBuilder.buildUpdateMetaDataMessage(
                                 context.getECS().getMetaData(),
-                        s.getName()));
+                                s.getName()));
+                if (response == null) {
+                	throw new Exception("Could not initialize server " + s.getName() + ". No response received.");
+                }
+                logger.info(String.format(
+                		"Response from server node %s: %s",
+                		s.getName(),
+                		response.getStatus().toString()));
+                if (response.getStatus() != StatusType.ACK) {
+                	throw new Exception("Could not initialize server " + s.getName() + ". Invalid response received.");
+                }
             }            
             context.setConnections(connections);
             return true;
         }
         catch (Exception e){
+        	writeError(e.getMessage());
             e.printStackTrace();
             return false;
         }
