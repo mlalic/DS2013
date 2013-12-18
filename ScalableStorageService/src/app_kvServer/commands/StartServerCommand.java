@@ -1,6 +1,9 @@
 package app_kvServer.commands;
 
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.apache.log4j.Logger;
 
 import app_kvServer.KVServer.ServerStatusType;
@@ -11,6 +14,14 @@ import common.messages.KVMessageImpl;
 public class StartServerCommand extends ServerCommand {
 
 	private static Logger logger = Logger.getRootLogger();
+	private static Set<ServerStatusType> validStatusTypes = new HashSet<ServerStatusType>();
+
+	static {
+		// If the server is not in one of the give states, the command is invalid
+		validStatusTypes.add(ServerStatusType.STOPPED);
+		validStatusTypes.add(ServerStatusType.LOCKED_WRITE);
+		validStatusTypes.add(ServerStatusType.IDLE);
+	}
 	
 	public StartServerCommand(String key, String value, final ServerContext serverContext) {
 		super(key, value, serverContext);
@@ -26,10 +37,7 @@ public class StartServerCommand extends ServerCommand {
 
 	@Override
 	public boolean isValid() {
-		if (serverContext.getServerStatus().equals(ServerStatusType.STOPPED) || serverContext.getServerStatus().equals(ServerStatusType.LOCKED_WRITE)) {
-			return true;
-		}
-		return false;
+		return validStatusTypes.contains(serverContext.getServerStatus());
 	}
 
 }
