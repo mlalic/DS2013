@@ -3,18 +3,24 @@ package app_kvEcs.commands;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+
+import org.apache.log4j.Logger;
 
 import app_kvEcs.communication.SSHCommunication;
 import app_kvEcs.communication.kvECSComm;
 import app_kvEcs.communication.kvECSCommInterface;
 import app_kvEcs.communication.kvMessageBuilder;
-
+import common.messages.KVMessage;
+import common.messages.KVMessage.StatusType;
 import common.metadata.MetaData;
 import common.metadata.ServerNode;
 
 public class InitServiceCommand extends Command{
     
     private int serverCount; 
+	private static Logger logger = Logger.getRootLogger();	
     
     public InitServiceCommand(Context context, String[] parameters) {
         super(context, parameters);
@@ -30,7 +36,11 @@ public class InitServiceCommand extends Command{
      * the duration ECS is up.
      */
     public boolean execute() {
+    	// TODO Code smell ...
+    	//      This whole method needs to be refactored into the ECS class...
+    	//      The command then just invokes the method on the ECS object it gets from the context.
         serverCount = Integer.parseInt(parameters[0]);
+        // TODO Check that the given serverCount is <= total server count in the config file...
         ArrayList<ServerNode> servers = new ArrayList<ServerNode>();
         ArrayList<kvECSCommInterface> connections = new ArrayList<kvECSCommInterface>();
         String addresses = "";
@@ -40,6 +50,7 @@ public class InitServiceCommand extends Command{
         
         HashSet<ServerNode> availableNodes = context.getECS().getAvailableNodes();
         Iterator<ServerNode> serverIterator = availableNodes.iterator();
+        List<ServerNode> toRemove = new LinkedList<ServerNode>(); 
         for (int i=0; i<serverCount; i++){
             ServerNode server = serverIterator.next();
             String address = server.getIpAddress();
@@ -50,8 +61,16 @@ public class InitServiceCommand extends Command{
             names = names + name +",";
             servers.add(server);
             metaData.addServer(server);
+            // Keep track which nodes have been added in this run in order
+            // to remove them from the list of available nodes later on.
+            toRemove.add(server);
+        }
+        // Remove the nodes which were added to the ring from the list
+        // of available nodes...
+        for (ServerNode server: toRemove) {
             availableNodes.remove(server);
         }
+        // TODO This is probably unnecessary, isn't it?
         context.getECS().setAvailableNodes(availableNodes);
         context.getECS().setMetaData(metaData);
         
