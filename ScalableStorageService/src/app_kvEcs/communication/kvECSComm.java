@@ -26,15 +26,17 @@ public class kvECSComm implements kvECSCommInterface {
     @Override
     public KVMessage sendMessage(KVMessage message) {
         try {
-            session.send(marsh.marshal(message));
-            KVMessage message_recv = marsh.unmarshal(session.receive());
-            return message_recv;
+            session.send(marshaller.marshal(message));
+            byte[] response = session.receive();
+            if (response == null) {
+            	// No response from the server...
+            	return null;
+            }
+            return marshaller.unmarshal(response);
         } catch (Exception e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
             return null;
         }
-        
     }
 
     @Override
