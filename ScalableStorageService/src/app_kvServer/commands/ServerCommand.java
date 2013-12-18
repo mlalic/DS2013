@@ -25,6 +25,11 @@ public abstract class ServerCommand {
 	public boolean isResponsibleFor(String key) {
 		Md5Hasher hasher = new Md5Hasher();
 		String hashedKey = hasher.getKeyHash(key);
+		if (serverContext.getMetaData() == null) {		
+			// This server doesn't know anything about the ring,
+			// so it definitely shouldn't consider itself the responsible one
+			return false;
+		}
 		ServerNode responsibleSever = serverContext.getMetaData().getResponsibleServer(hashedKey);
 		return responsibleSever.getName().equals(serverContext.getNodeName());
 	}
