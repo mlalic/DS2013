@@ -17,8 +17,12 @@ public class ECSClient {
     private static Logger logger =  Logger.getRootLogger();
     
     public static void main(String[] args){
+    	if (args.length != 1) {
+    		System.out.println("Invalid number of arguments!");
+    		System.exit(1);
+    	}
         try {
-            new LogSetup("logs/client/client.log", Level.ALL);
+            new LogSetup("logs/ecs/ecs.log", Level.ALL);
         } catch (IOException e1) {
             logger.error("Error! Unable to initialize logger!");
             e1.printStackTrace();
