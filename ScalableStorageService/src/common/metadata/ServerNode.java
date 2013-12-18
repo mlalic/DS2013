@@ -1,10 +1,11 @@
 package common.metadata;
 
+
 public class ServerNode {
 	private String nodeName;
 	private String ipAddress;
 	private int port;
-	private transient final KeyHasher hasher = new Md5Hasher();
+	private transient KeyHasher hasher = new Md5Hasher();
 
 	public ServerNode(String ipAddress, int port) {
 		this.ipAddress = ipAddress;
@@ -28,16 +29,23 @@ public class ServerNode {
 		return ipAddress + ":" + port;
 	}
 	
-	public String getHash() {
-		return hasher.getKeyHash(getNodeAddress()); 
+	public String getHash() {		
+		return getHasher().getKeyHash(getNodeAddress()); 
 	}
 
 	public String getIpAddress() {
 		return ipAddress;
 	}
-
+	
 	public int getPort() {
 		return port;
+	}
+	
+	protected KeyHasher getHasher() {
+		if (hasher == null) {
+			hasher = new Md5Hasher();
+		}
+		return hasher;
 	}
 
 	@Override
