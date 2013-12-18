@@ -1,7 +1,5 @@
 package app_kvEcs.communication;
 
-import java.io.IOException;
-
 import common.communication.Session;
 import common.communication.TcpSession;
 import common.messages.KVMessage;
@@ -10,13 +8,13 @@ import common.messages.KVMessageMarshaller;
 public class kvECSComm implements kvECSCommInterface {
 
     private Session session;
-    private KVMessageMarshaller marsh;
+    private KVMessageMarshaller marshaller = new KVMessageMarshaller();
     private String name;
+
     @Override
     public void connect(String ip, int port) throws Exception {
         session = new TcpSession(ip, port);
         session.connect();
-        marsh = new KVMessageMarshaller();
     }
 
     @Override
@@ -46,8 +44,7 @@ public class kvECSComm implements kvECSCommInterface {
     
     @Override
     public String getHostName() {
-        // TODO Auto-generated method stub
-        return null;
+    	return name;
     }
 
 }
