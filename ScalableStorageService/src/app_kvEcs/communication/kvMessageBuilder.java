@@ -1,9 +1,15 @@
 package app_kvEcs.communication;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import com.google.gson.Gson;
+
 import common.messages.KVMessage;
 import common.messages.KVMessageImpl;
 import common.metadata.MetaData;
 import common.metadata.MetaDataTransport;
+import common.metadata.ServerNode;
 
 public class kvMessageBuilder {
     
@@ -32,7 +38,9 @@ public class kvMessageBuilder {
         return new KVMessageImpl(KVMessage.StatusType.UNLOCK_WRITE);
     }
     
-    public static KVMessage buildMoveMessage(){
-        return new KVMessageImpl(KVMessage.StatusType.MOVE_DATA);
+    public static KVMessage buildMoveMessage(ServerNode destinationNode) {
+    	Gson gson = new Gson();
+    	String destinationNodeJson = gson.toJson(destinationNode);
+        return new KVMessageImpl(KVMessage.StatusType.MOVE_DATA, null, destinationNodeJson);
     }
 }
