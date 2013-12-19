@@ -56,18 +56,17 @@ public class MetaData {
 	}
 
 	/**
-	 * Gets the server node which precedes the given key.
-	 * @param key
+	 * Gets the server node which precedes the given node.
+	 * @param node The node for which the predecessor should be returned
 	 * @return
 	 */
-	public ServerNode getPredecessor(String key) {
+	public ServerNode getPredecessor(ServerNode node) {
+		String key = node.getHash();
 		logger.info("Getting predecessor for " + key);
 		if (serverRing.size() == 0) {
 			return null;
 		}
-		// If the key is already found in the ring, it'll return the server
-		// associated with that key.
-		Entry<String, ServerNode> serverEntry = serverRing.floorEntry(key);
+		Entry<String, ServerNode> serverEntry = serverRing.lowerEntry(key);
 		if (serverEntry == null) {
 			serverEntry = serverRing.lastEntry();
 		}
