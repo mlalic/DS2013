@@ -1,8 +1,8 @@
 package app_kvServer;
 
 import app_kvServer.KVServer.ServerStatusType;
-
 import common.metadata.MetaData;
+import common.metadata.ServerNode;
 
 public class ServerContext {
 
@@ -18,6 +18,16 @@ public class ServerContext {
 
 	public String getNodeName() {
 		return nodeName;
+	}
+	
+	public ServerNode getServerNode() {
+		for (ServerNode node: metaData.getServers()) {
+			if (node.getName().equals(nodeName)) {
+				return node;
+			}
+		}
+		// This server is not in the ring
+		return null;
 	}
 
 	public void setNodeName(String nodeName) {
