@@ -4,9 +4,9 @@ import java.util.Arrays;
 
 public class CommandFactory {
     private Context context;
-    public CommandFactory(){
-        context = new Context();
-        context.setOutputStream(System.out);
+
+    public CommandFactory(Context context) {
+        this.context = context;
     }
     /**
      * Creates a new Command instance based on a given string line.
@@ -23,10 +23,7 @@ public class CommandFactory {
         // Decide which concrete class to instantiate
         Command command = null;
         String[] parameters = Arrays.copyOfRange(parts, 1, parts.length);
-        if (commandName.equals("ecsInit")) {
-            command = new ECSInitCommand(context, parameters);
-        }
-        else if (commandName.equals("quit")){
+        if (commandName.equals("quit")){
             command = new QuitCommand(context, parameters);
         }
         else if (commandName.equalsIgnoreCase("initService")){

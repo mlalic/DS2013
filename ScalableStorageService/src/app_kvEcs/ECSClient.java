@@ -11,6 +11,7 @@ import org.apache.log4j.Logger;
 
 import app_kvEcs.commands.CommandFactory;
 import app_kvEcs.commands.Command;
+import app_kvEcs.commands.Context;
 
 public class ECSClient {
     private final static String PROMPT = "ECS> ";
@@ -28,14 +29,25 @@ public class ECSClient {
             e1.printStackTrace();
             System.exit(1);
         }
-        CommandFactory factory = new CommandFactory();
+
+        // Setup the CLI app's context...
+        Context context = new Context();
+        context.setOutputStream(System.out);        
+        // The ECS instance for this process...
+        final String configFilePath = args[0];
+        ECS ecs = new ECS(configFilePath);
+        if (ecs.buildInitialMetadata()) {
+            context.setECS(ecs);
+        } else {
+        	System.out.println("Error setting up the initial metadata. Does your config file contain syntax errors?");
+        	System.exit(1);
+        }
+        
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
         String line = null;
-        
-        //Set Initial Context Before Offering Prompt
-        Command initCommand = factory.createCommand("ecsInit "+args[0]);
-        initCommand.execute();
-        
+
+        // Create a factory instance with the CLI app's context
+        CommandFactory factory = new CommandFactory(context);
         while (true) {
             System.out.print(PROMPT);
             try {
