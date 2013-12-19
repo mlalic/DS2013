@@ -170,13 +170,18 @@ public class KVStore implements KVCommInterface {
 			if (response == null) {
 				// No response received.
 				// TODO Try again or propagate the error to the client?
-
+				// Communication with this server is no longer possible, try forcing contact with
+				// a different server which could maybe provide the client with at least the
+				// most recent metadata in order to find the proper node (and directly answer the request
+				// at best).
+				metaData.removeServer(responsibleNode);
 			} else if (response.getStatus() == StatusType.SERVER_NOT_RESPONSIBLE) {
 				logger.info("Node was not responsible. Updating metadata...");
 				updateMetaData(response.getValue());
 			} else if (response.getStatus() == StatusType.SERVER_STOPPED) {
 				// TODO Try again in a while or propagate the error to the client?
 				logger.info("Server was stopped. Waiting and then retrying...");
+				metaData.removeServer(responsibleNode);
 			} else if (response.getStatus() == StatusType.SERVER_WRITE_LOCK) {
 				// TODO Try again in a while or propagate the error to the client?
 				logger.info("Server was locked for writes. Waiting and then retrying...");		
