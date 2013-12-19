@@ -3,20 +3,22 @@ package app_kvEcs.commands;
 import java.io.PrintStream;
 import java.util.ArrayList;
 
+import common.metadata.ServerNode;
+
 import app_kvEcs.ECS;
-import app_kvEcs.communication.kvECSCommInterface;
+import app_kvEcs.communication.NodeCommunicator;
 
 
 public class Context {
     private ECS ecs = null;
     private PrintStream outputStream = null;
-    private ArrayList<kvECSCommInterface> connections = null;
+    private ArrayList<NodeCommunicator> connections = null;
    
-    public ArrayList<kvECSCommInterface> getConnections() {
+    public ArrayList<NodeCommunicator> getConnections() {
         return connections;
     }
 
-    public void setConnections(ArrayList<kvECSCommInterface> connections) {
+    public void setConnections(ArrayList<NodeCommunicator> connections) {
         this.connections = connections;
     }
 
@@ -34,6 +36,17 @@ public class Context {
 
     public void setOutputStream(PrintStream outputStream) {
         this.outputStream = outputStream;
+    }
+    
+    public NodeCommunicator getNodeConnection(ServerNode node) {
+    	// TODO Use a HashMap (since ordering of the connections isn't important when we need to access them all),
+    	//      but make this lookup more efficient... 
+        for (NodeCommunicator connection: connections) {
+            if (connection.getServerNode().equals(node)) {
+                return connection;
+            }
+        }
+        return null;
     }
 
 }

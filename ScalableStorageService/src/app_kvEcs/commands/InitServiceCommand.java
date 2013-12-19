@@ -9,8 +9,8 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import app_kvEcs.communication.SSHCommunication;
-import app_kvEcs.communication.kvECSComm;
-import app_kvEcs.communication.kvECSCommInterface;
+import app_kvEcs.communication.TcpNodeCommunicator;
+import app_kvEcs.communication.NodeCommunicator;
 import app_kvEcs.communication.kvMessageBuilder;
 import common.messages.KVMessage;
 import common.messages.KVMessage.StatusType;
@@ -42,7 +42,7 @@ public class InitServiceCommand extends Command{
         serverCount = Integer.parseInt(parameters[0]);
         // TODO Check that the given serverCount is <= total server count in the config file...
         ArrayList<ServerNode> servers = new ArrayList<ServerNode>();
-        ArrayList<kvECSCommInterface> connections = new ArrayList<kvECSCommInterface>();
+        ArrayList<NodeCommunicator> connections = new ArrayList<NodeCommunicator>();
         String addresses = "";
         String ports = "";
         String names = "";
@@ -84,14 +84,12 @@ public class InitServiceCommand extends Command{
             
             //Connections to the spawned processes
             for( ServerNode s : servers ){
-                kvECSCommInterface connection = new kvECSComm();
-                connection.setHostName(s.getName());
-                connection.connect(s.getIpAddress(), s.getPort());
+                NodeCommunicator connection = new TcpNodeCommunicator(s);
+                connection.connect();
                 connections.add(connection);
                 KVMessage response = connection.sendMessage(
                 		kvMessageBuilder.buildUpdateMetaDataMessage(
-                                context.getECS().getMetaData(),
-                                s.getName()));
+                                context.getECS().getMetaData()));
                 if (response == null) {
                 	throw new Exception("Could not initialize server " + s.getName() + ". No response received.");
                 }

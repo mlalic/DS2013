@@ -1,10 +1,6 @@
 package app_kvEcs.communication;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.google.gson.Gson;
-
 import common.messages.KVMessage;
 import common.messages.KVMessageImpl;
 import common.metadata.MetaData;
@@ -13,8 +9,10 @@ import common.metadata.ServerNode;
 
 public class kvMessageBuilder {
     
-    public static KVMessage buildUpdateMetaDataMessage(MetaData metaData, String name){
-        return new KVMessageImpl(KVMessage.StatusType.UPDATE_METADATA, name,
+    public static KVMessage buildUpdateMetaDataMessage(MetaData metaData){
+        return new KVMessageImpl(
+        		KVMessage.StatusType.UPDATE_METADATA,
+        		null,
                 MetaDataTransport.marshalMetaData(metaData));
     } 
     

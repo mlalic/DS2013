@@ -4,22 +4,25 @@ import common.communication.Session;
 import common.communication.TcpSession;
 import common.messages.KVMessage;
 import common.messages.KVMessageMarshaller;
+import common.metadata.ServerNode;
 
-public class kvECSComm implements kvECSCommInterface {
+public class TcpNodeCommunicator extends NodeCommunicator {
 
     private Session session;
     private KVMessageMarshaller marshaller = new KVMessageMarshaller();
-    private String name;
 
+    public TcpNodeCommunicator(ServerNode node) {
+    	super(node);
+    }
+    
     @Override
-    public void connect(String ip, int port) throws Exception {
-        session = new TcpSession(ip, port);
+    public void connect() throws Exception {
+        session = new TcpSession(node.getIpAddress(), node.getPort());
         session.connect();
     }
 
     @Override
     public void disconnect() {
-        // TODO Auto-generated method stub
         session.disconnect();
    }
 
@@ -37,16 +40,6 @@ public class kvECSComm implements kvECSCommInterface {
             e.printStackTrace();
             return null;
         }
-    }
-
-    @Override
-    public void setHostName(String name){
-        this.name = name;
-    }
-    
-    @Override
-    public String getHostName() {
-    	return name;
     }
 
 }

@@ -4,8 +4,8 @@ import java.util.HashSet;
 
 import org.apache.log4j.Logger;
 
-import app_kvEcs.communication.kvECSComm;
-import app_kvEcs.communication.kvECSCommInterface;
+import app_kvEcs.communication.TcpNodeCommunicator;
+import app_kvEcs.communication.NodeCommunicator;
 import app_kvEcs.communication.kvMessageBuilder;
 import common.messages.KVMessage;
 import common.messages.KVMessage.StatusType;
@@ -38,16 +38,14 @@ public class AddNodeCommand extends Command {
             SSHCommunication.SSHDeploy(newNode.getIpAddress(),
                     Integer.toString(newNode.getPort()),
                     newNode.getName());
-            kvECSCommInterface connection = new kvECSComm();
+            NodeCommunicator connection = new TcpNodeCommunicator(newNode);
             try {
-                connection.connect(newNode.getIpAddress(), newNode.getPort());
+                connection.connect();
                 context.getConnections().add(connection);
                 metaData.addServer(newNode);
                 context.getECS().setMetaData(metaData);
                 KVMessage updateResponse = connection.sendMessage(
-                        kvMessageBuilder.buildUpdateMetaDataMessage(
-                                metaData,
-                                newNode.getName()));
+                        kvMessageBuilder.buildUpdateMetaDataMessage(metaData));
                 if (updateResponse == null || updateResponse.getStatus() != StatusType.ACK) {
                 	logger.error("Invalid response from server -- new node not started.");
                 	throw new Exception("New node not started - unable to initialize it.");
@@ -61,7 +59,7 @@ public class AddNodeCommand extends Command {
                 
                 //Ask Successor to Move Data
                 ServerNode successor = metaData.getSuccessor(newNode);
-                kvECSCommInterface suConnection = getNodeConnection(successor);
+                NodeCommunicator suConnection = context.getNodeConnection(successor);
                 KVMessage lockResponse = suConnection.sendMessage(
                         kvMessageBuilder.buildWriteLockMessage());
                 if (lockResponse == null || lockResponse.getStatus() != StatusType.ACK) {
@@ -71,9 +69,7 @@ public class AddNodeCommand extends Command {
                 }
                 
                 suConnection.sendMessage(
-                        kvMessageBuilder.buildUpdateMetaDataMessage(
-                                context.getECS().getMetaData(),
-                                successor.getName()));
+                        kvMessageBuilder.buildUpdateMetaDataMessage(context.getECS().getMetaData()));
                 
                 response = suConnection.sendMessage(
                         kvMessageBuilder.buildMoveMessage(newNode));
@@ -81,11 +77,9 @@ public class AddNodeCommand extends Command {
                 	// Only when the data is successfully moved is the new node to be
                 	// considered a part of the ring and thus the new metadata broadcasted
                 	// to all nodes in the ring.
-                    for (kvECSCommInterface con : context.getConnections()){
-                        con.sendMessage(
-                                kvMessageBuilder.buildUpdateMetaDataMessage(
-                                        context.getECS().getMetaData(),
-                                        successor.getName()));
+                    for (NodeCommunicator con : context.getConnections()){
+                        con.sendMessage(kvMessageBuilder.buildUpdateMetaDataMessage(
+                        		context.getECS().getMetaData()));
                     }
                 }
                 // The successor needs to be unlocked for writes no matter if the data
@@ -101,16 +95,6 @@ public class AddNodeCommand extends Command {
             }
         }
     }
-    
-    public kvECSCommInterface getNodeConnection(ServerNode node){
-        for ( kvECSCommInterface connection : context.getConnections()){
-            if (connection.getHostName().equals(node.getName())){
-                return connection;
-            }
-        }
-        return null;
-    }
-       
     
     @Override
     public boolean isValid() {

@@ -3,7 +3,7 @@ package app_kvEcs.commands;
 import java.util.Collection;
 import java.util.HashSet;
 
-import app_kvEcs.communication.kvECSCommInterface;
+import app_kvEcs.communication.NodeCommunicator;
 import app_kvEcs.communication.kvMessageBuilder;
 import common.messages.KVMessage;
 import common.metadata.MetaData;
@@ -33,8 +33,7 @@ public class RemoveNodeCommand extends Command {
         context.getECS().setMetaData(metaData);
 
         // Set up the connections to the two affected nodes
-        kvECSCommInterface removeCon = getNodeConnection(nodeToRemove);
-        kvECSCommInterface suConn = getNodeConnection(successorNode);
+        NodeCommunicator removeCon = context.getNodeConnection(nodeToRemove);
      
         // Shuffle the data around from the node to be removed to its successor in the ring 
         
@@ -54,11 +53,10 @@ public class RemoveNodeCommand extends Command {
         	// When the ECS gets the acknowledgment that all data has been moved, it is
         	// safe to "commit" the changes, i.e. make them permanent by propagating
         	// the new metadata without the removed node to each leftover node.
-            for (kvECSCommInterface con : context.getConnections()){
+            for (NodeCommunicator con : context.getConnections()){
                 con.sendMessage(
                         kvMessageBuilder.buildUpdateMetaDataMessage(
-                                context.getECS().getMetaData(),
-                                suConn.getHostName()));
+                                context.getECS().getMetaData()));
             }
             
             // The node is to be shutdown if the move of data is successful
@@ -88,15 +86,6 @@ public class RemoveNodeCommand extends Command {
     	return servers.iterator().next();
 	}
 
-	public kvECSCommInterface getNodeConnection(ServerNode node){
-        for ( kvECSCommInterface connection : context.getConnections()){
-            if (connection.getHostName().equals(node.getName())){
-                return connection;
-            }
-        }
-        return null;
-    }
-    
     @Override
     public boolean isValid() {
         if (parameters.length==0){

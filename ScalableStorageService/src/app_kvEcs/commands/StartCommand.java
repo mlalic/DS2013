@@ -1,6 +1,6 @@
 package app_kvEcs.commands;
 
-import app_kvEcs.communication.kvECSCommInterface;
+import app_kvEcs.communication.NodeCommunicator;
 import app_kvEcs.communication.kvMessageBuilder;
 
 public class StartCommand extends Command {
@@ -12,7 +12,7 @@ public class StartCommand extends Command {
 
     @Override
     public boolean execute() {
-        for(kvECSCommInterface connection : context.getConnections()){
+        for(NodeCommunicator connection : context.getConnections()){
             connection.sendMessage(kvMessageBuilder.buildStartMessage());                                    
         }
         return true;
