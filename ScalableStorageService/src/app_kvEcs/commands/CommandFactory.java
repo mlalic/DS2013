@@ -44,6 +44,9 @@ public class CommandFactory {
         else if (commandName.equalsIgnoreCase("addNode")){
             command = new AddNodeCommand(context, parameters);
         }
+        else if (commandName.equalsIgnoreCase("removeNode")) {
+        	command = new RemoveNodeCommand(context, parameters);
+        }
         // No concrete class matches the command name
         if (command == null) {
             return null;
