@@ -10,13 +10,11 @@ import app_kvServer.ServerContext;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
-
-import common.communication.Session;
-import common.communication.TcpSession;
+import common.communication.NodeCommunicator;
+import common.communication.TcpNodeCommunicator;
 import common.messages.KVMessage;
 import common.messages.KVMessage.StatusType;
 import common.messages.KVMessageImpl;
-import common.messages.KVMessageMarshaller;
 import common.metadata.KeyHasher;
 import common.metadata.KeyRange;
 import common.metadata.Md5Hasher;
@@ -96,23 +94,14 @@ public class MoveDataServerCommand extends ServerCommand {
 	 */
 	private boolean sendData(Map<String, String> data, ServerNode destinationNode) throws Exception {
 		String packedData = packData(data);
-		
-		Session session = new TcpSession(destinationNode.getIpAddress(), destinationNode.getPort());
-		session.connect();
-		
-		KVMessageMarshaller marshaller = new KVMessageMarshaller();
-		byte[] bytesToSend = marshaller.marshal(new KVMessageImpl(
+		KVMessageImpl message = new KVMessageImpl(
 				StatusType.BULK_DATA_MOVE,
 				"data",
-				packedData));
-		session.send(bytesToSend);
-
-		byte[] responseBytes = session.receive();
-		if (responseBytes == null) {
-			return false;
-		}
-		KVMessage response = marshaller.unmarshal(responseBytes);
-
+				packedData);
+		NodeCommunicator communicator = new TcpNodeCommunicator(destinationNode);
+		communicator.connect();
+		
+		KVMessage response = communicator.sendMessage(message);
 		if (response == null) {
 			return false;
 		}
