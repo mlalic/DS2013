@@ -51,7 +51,7 @@ public class GetCommand extends Command {
         }
         catch(Exception ex){
             //LOG Unknown Exception
-        	logger.error(ex.getMessage());
+        	logger.error(ex.getMessage(), ex);
         	writeError(ex.getMessage());
         }
         return true;
