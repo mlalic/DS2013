@@ -52,7 +52,8 @@ public class ServerCommandFactory {
 		}
 		else if (KVMessage.StatusType.MOVE_DATA.equals(status)) {
 			serverCommand = new MoveDataServerCommand(requestMessage.getKey(), requestMessage.getValue(), serverContext);
-			
+		} else if (KVMessage.StatusType.BULK_DATA_MOVE.equals(status)) {
+			serverCommand = new BulkDataMoveCommand(requestMessage.getKey(), requestMessage.getValue(), serverContext);
 		}
 		
 		if (serverCommand == null) {
