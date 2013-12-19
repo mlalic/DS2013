@@ -19,7 +19,8 @@ import common.metadata.ServerNode;
 
 public class InitServiceCommand extends Command{
     
-    private int serverCount; 
+    private static final int INITIALIZATION_DELAY = 1000;  // 1 second
+	private int serverCount; 
 	private static Logger logger = Logger.getRootLogger();	
     
     public InitServiceCommand(Context context, String[] parameters) {
@@ -43,9 +44,6 @@ public class InitServiceCommand extends Command{
         // TODO Check that the given serverCount is <= total server count in the config file...
         ArrayList<ServerNode> servers = new ArrayList<ServerNode>();
         ArrayList<NodeCommunicator> connections = new ArrayList<NodeCommunicator>();
-        String addresses = "";
-        String ports = "";
-        String names = "";
         MetaData metaData = context.getECS().getMetaData();
         
         HashSet<ServerNode> availableNodes = context.getECS().getAvailableNodes();
@@ -53,12 +51,6 @@ public class InitServiceCommand extends Command{
         List<ServerNode> toRemove = new LinkedList<ServerNode>(); 
         for (int i=0; i<serverCount; i++){
             ServerNode server = serverIterator.next();
-            String address = server.getIpAddress();
-            String port = Integer.toString(server.getPort());
-            String name = server.getName();
-            addresses = addresses + address + ",";
-            ports = ports + port +",";
-            names = names + name +",";
             servers.add(server);
             metaData.addServer(server);
             // Keep track which nodes have been added in this run in order
@@ -74,13 +66,12 @@ public class InitServiceCommand extends Command{
         context.getECS().setAvailableNodes(availableNodes);
         context.getECS().setMetaData(metaData);
         
-        //Remove trailing ','s
-        addresses = addresses.substring(0, addresses.length()-1);
-        ports = ports.substring(0,ports.length()-1);
-        names = ports.substring(0,names.length()-1);
-        try{
-            //SSHDeploy to bring up processes
-            SSHCommunication.SSHDeploy(addresses, ports, names);
+        try {
+            // SSHDeploy to bring up processes
+        	// TODO Read the user/host values from a config file (or as optional command line parameters of the ECS client app?) and store them in the ECS context!
+        	if (!startAllNodes(metaData)) {
+        		return false;
+        	}
             
             //Connections to the spawned processes
             for( ServerNode s : servers ){
@@ -110,6 +101,23 @@ public class InitServiceCommand extends Command{
             return false;
         }
     }
+
+	private boolean startAllNodes(MetaData metaData) throws InterruptedException {
+		writeResponse("Starting up server nodes...");
+		SSHCommunication sshCommunicator = new SSHCommunication();
+
+		for (ServerNode node: metaData.getServers()) {
+			writeResponse(String.format(" - %s at %s:%s", node.getName(), node.getIpAddress(), node.getPort()));
+			if (!sshCommunicator.sshDeploy(node)) {
+				writeError("Unable to start up node " + node.getName() + ". Error initializing the service!");
+				return false;
+			}
+		}
+
+		writeResponse("Waiting for them to spin up...");
+		Thread.sleep(INITIALIZATION_DELAY);
+		return true;
+	}
 
     @Override
     public boolean isValid() {

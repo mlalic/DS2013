@@ -2,30 +2,48 @@ package app_kvEcs.communication;
 
 import java.io.IOException;
 
+import common.metadata.ServerNode;
+
 public class SSHCommunication {
-    public static boolean SSHDeploy(String addresses, String ports, String names){
+	private String remoteUser;
+	// By default, the deployment script should be found in the current working directory of the executable
+	private String scriptPath = "./";
+	private final static String SCRIPT_NAME = "deploy.sh";
+	
+	public SSHCommunication() {
+		// Sets up some default values for the parameters.
+		this.remoteUser = "kvstore";
+	}
+
+	public SSHCommunication(String remoteUser) {
+		this.remoteUser = remoteUser;
+	}
+	
+	public SSHCommunication(String remoteUser, String scriptPath) {
+		this.remoteUser = remoteUser;
+		this.scriptPath = scriptPath;
+	}
+	
+	public boolean sshDeploy(ServerNode node) {
         try {
-            String buildString = "";
-            String[] namesList = names.split(",");
-            String[] portsList = ports.split(",");
-            String[] addressList = addresses.split(",");
-            for(int i=0; i < namesList.length; i++){
-                buildString += namesList[i];
-                buildString += "/";
-                buildString += addressList[i];
-                buildString += "/";
-                buildString += portsList[i];
-                buildString += ",";
-            }
-            buildString = buildString.substring(0,buildString.length()-1);
             Runtime run = Runtime.getRuntime();
-            run.exec("fab buildList:" + buildString + " deploy");
+            run.exec(buildCommand(node));
             return true;
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-            return false;
+        } catch (IOException exc) {
+        	exc.printStackTrace();
+        	return false;
         }
-    }
+	}
+
+	private String buildCommand(ServerNode node) {
+		return String.format(
+				"%s%s %s %s %s %s",
+				scriptPath,
+				SCRIPT_NAME,
+				remoteUser,
+				node.getIpAddress(),
+				node.getPort(),
+				node.getName());
+	}
 
 }

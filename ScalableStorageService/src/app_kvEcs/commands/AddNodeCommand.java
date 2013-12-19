@@ -4,6 +4,7 @@ import java.util.HashSet;
 
 import org.apache.log4j.Logger;
 
+import app_kvEcs.communication.SSHCommunication;
 import app_kvEcs.communication.kvMessageBuilder;
 import common.communication.NodeCommunicator;
 import common.communication.TcpNodeCommunicator;
@@ -14,6 +15,7 @@ import common.metadata.ServerNode;
 
 public class AddNodeCommand extends Command {
 
+	private static final long INITIALIZATION_DELAY = 500;	// 0.5 seconds
 	private static Logger logger = Logger.getRootLogger();
 	
     public AddNodeCommand(Context context, String[] parameters) {
@@ -35,10 +37,12 @@ public class AddNodeCommand extends Command {
             ServerNode newNode = availableNodes.iterator().next();
             availableNodes.remove(newNode);
             context.getECS().setAvailableNodes(availableNodes);
-            SSHCommunication.SSHDeploy(newNode.getIpAddress(),
-                    Integer.toString(newNode.getPort()),
-                    newNode.getName());
-            NodeCommunicator connection = new TcpNodeCommunicator(newNode);
+        	
+            if (!startUpNode(newNode)) {
+            	return false;
+            }
+
+        	NodeCommunicator connection = new TcpNodeCommunicator(newNode);
             try {
                 connection.connect();
                 context.getConnections().add(connection);
@@ -95,6 +99,28 @@ public class AddNodeCommand extends Command {
             }
         }
     }
+
+    /**
+     * Helper method which starts up the given node and prints out status messages along the way to the user.
+     * @param newNode The node to start up
+     * @return <code>true</code> when the startup was successful, <code>false</code> otherwise.
+     */
+	private boolean startUpNode(ServerNode newNode) {
+		writeResponse("Starting up a new node...");
+		writeResponse(String.format(" - %s at %s:%s", newNode.getName(), newNode.getIpAddress(), newNode.getPort()));
+		SSHCommunication sshCommunicator = new SSHCommunication();
+		if (!sshCommunicator.sshDeploy(newNode)) {
+			writeError("Unable to start up node " + newNode.getName() + ". Error initializing the service!");
+			return false;
+		}
+		writeResponse("Waiting for them to start up...");
+		try {
+			Thread.sleep(INITIALIZATION_DELAY);
+		} catch (InterruptedException e1) {
+			// pass
+		}
+		return true;
+	}
     
     @Override
     public boolean isValid() {
