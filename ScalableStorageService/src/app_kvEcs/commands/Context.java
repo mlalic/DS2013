@@ -3,10 +3,9 @@ package app_kvEcs.commands;
 import java.io.PrintStream;
 import java.util.ArrayList;
 
+import common.communication.NodeCommunicator;
 import common.metadata.ServerNode;
-
 import app_kvEcs.ECS;
-import app_kvEcs.communication.NodeCommunicator;
 
 
 public class Context {

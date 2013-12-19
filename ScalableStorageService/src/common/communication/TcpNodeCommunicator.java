@@ -1,7 +1,5 @@
-package app_kvEcs.communication;
+package common.communication;
 
-import common.communication.Session;
-import common.communication.TcpSession;
 import common.messages.KVMessage;
 import common.messages.KVMessageMarshaller;
 import common.metadata.ServerNode;

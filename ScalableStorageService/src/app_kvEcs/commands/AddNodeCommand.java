@@ -4,9 +4,9 @@ import java.util.HashSet;
 
 import org.apache.log4j.Logger;
 
-import app_kvEcs.communication.TcpNodeCommunicator;
-import app_kvEcs.communication.NodeCommunicator;
 import app_kvEcs.communication.kvMessageBuilder;
+import common.communication.NodeCommunicator;
+import common.communication.TcpNodeCommunicator;
 import common.messages.KVMessage;
 import common.messages.KVMessage.StatusType;
 import common.metadata.MetaData;

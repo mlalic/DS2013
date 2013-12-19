@@ -1,4 +1,4 @@
-package app_kvEcs.communication;
+package common.communication;
 
 import common.messages.KVMessage;
 import common.metadata.ServerNode;

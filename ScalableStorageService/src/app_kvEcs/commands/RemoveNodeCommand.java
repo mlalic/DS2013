@@ -3,8 +3,8 @@ package app_kvEcs.commands;
 import java.util.Collection;
 import java.util.HashSet;
 
-import app_kvEcs.communication.NodeCommunicator;
 import app_kvEcs.communication.kvMessageBuilder;
+import common.communication.NodeCommunicator;
 import common.messages.KVMessage;
 import common.metadata.MetaData;
 import common.metadata.ServerNode;

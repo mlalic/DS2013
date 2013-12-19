@@ -1,6 +1,7 @@
 package app_kvEcs.commands;
 
-import app_kvEcs.communication.NodeCommunicator;
+import common.communication.NodeCommunicator;
+
 import app_kvEcs.communication.kvMessageBuilder;
 
 public class StopCommand extends Command {
