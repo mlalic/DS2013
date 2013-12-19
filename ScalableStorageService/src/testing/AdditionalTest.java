@@ -37,6 +37,15 @@ public class AdditionalTest extends TestCase {
 		assertFalse(range.isInRange("FF"));
 		assertFalse(range.isInRange("AB"));
 	}
+	
+	@Test
+	public void testInRangeWholeRing() {
+		KeyRange range = new KeyRange("A", "A");
+		
+		assertTrue(range.isInRange("0"));
+		assertTrue(range.isInRange("F"));
+		assertTrue(range.isInRange("A"));
+	}
 
 	/**
 	 * Tests that the {@link KeyRange#isInRange(String) isInRange} method

@@ -34,7 +34,7 @@ public class KeyRange {
 		// end is excluded
 		final boolean lessThanEnd = key.compareTo(end) < 0;
 		
-		if (end.compareTo(start) < 0) {
+		if (end.compareTo(start) <= 0) {
 			// Special case when the range "wraps-around" the ring.
 			// It means that the start of the range is found at a position
 			// with a higher magnitude than the end of the range.
