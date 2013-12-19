@@ -1,5 +1,7 @@
 package app_kvServer;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -33,6 +35,13 @@ public class InMemoryServerStorage implements ServerStorage {
 	@Override
 	public void remove(String key) {
 		storage.remove(key);
+	}
+
+	@Override
+	public Map<String, String> getAllData() {
+		// Return a copy of the data to avoid destructive operations influencing the internals
+		// of the InMemoryServerStorage instance
+		return new HashMap<String, String>(storage);
 	}
 
 }
