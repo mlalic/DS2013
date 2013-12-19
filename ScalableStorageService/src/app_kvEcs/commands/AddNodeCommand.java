@@ -68,7 +68,7 @@ public class AddNodeCommand extends Command {
                         kvMessageBuilder.buildWriteLockMessage());
                 if (lockResponse == null || lockResponse.getStatus() != StatusType.ACK) {
                 	logger.error("Invalid response from server -- unable to lock the successor of the new node.");
-                	// TODO Maybe halt the new node's server process before returning and return it to the available pool...
+                	connection.sendMessage(kvMessageBuilder.buildShutdownMessage());
                 	throw new Exception("New node not added to the ring -- unable to lock the successor of the new node");
                 }
                 
