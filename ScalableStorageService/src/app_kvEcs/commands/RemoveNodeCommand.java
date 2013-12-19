@@ -69,9 +69,7 @@ public class RemoveNodeCommand extends Command {
         	// When the data is not moved, try to "rollback" the state of the ring
         	// The only change which needs to be undone is to make the node which
         	// should have been removed available for write operations once again.
-
-        	// TODO Send unlockWrite message to ``nodeToRemove`` 
-        	
+        	removeCon.sendMessage(kvMessageBuilder.buildReleaseLockMessage());
         	return false;
         }
     }
