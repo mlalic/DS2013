@@ -6,12 +6,15 @@ import java.util.ArrayList;
 import common.communication.NodeCommunicator;
 import common.metadata.ServerNode;
 import app_kvEcs.ECS;
+import app_kvEcs.communication.NodeDeployer;
+import app_kvEcs.communication.SshNodeDeployer;
 
 
 public class Context {
     private ECS ecs = null;
     private PrintStream outputStream = null;
     private ArrayList<NodeCommunicator> connections = null;
+	private NodeDeployer nodeDeployer;
    
     public ArrayList<NodeCommunicator> getConnections() {
         return connections;
@@ -47,5 +50,13 @@ public class Context {
         }
         return null;
     }
+
+	public void setDeployer(NodeDeployer nodeDeployer) {
+		this.nodeDeployer = nodeDeployer;
+	}
+	
+	public NodeDeployer getDeployer() {
+		return nodeDeployer;
+	}
 
 }

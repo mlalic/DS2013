@@ -4,7 +4,8 @@ import java.util.HashSet;
 
 import org.apache.log4j.Logger;
 
-import app_kvEcs.communication.SSHCommunication;
+import app_kvEcs.communication.NodeDeployer;
+import app_kvEcs.communication.SshNodeDeployer;
 import app_kvEcs.communication.kvMessageBuilder;
 import common.communication.NodeCommunicator;
 import common.communication.TcpNodeCommunicator;
@@ -108,7 +109,7 @@ public class AddNodeCommand extends Command {
 	private boolean startUpNode(ServerNode newNode) {
 		writeResponse("Starting up a new node...");
 		writeResponse(String.format(" - %s at %s:%s", newNode.getName(), newNode.getIpAddress(), newNode.getPort()));
-		SSHCommunication sshCommunicator = new SSHCommunication();
+		NodeDeployer sshCommunicator = context.getDeployer();
 		if (!sshCommunicator.deploy(newNode)) {
 			writeError("Unable to start up node " + newNode.getName() + ". Error initializing the service!");
 			return false;

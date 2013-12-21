@@ -8,7 +8,8 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import app_kvEcs.communication.SSHCommunication;
+import app_kvEcs.communication.NodeDeployer;
+import app_kvEcs.communication.SshNodeDeployer;
 import app_kvEcs.communication.kvMessageBuilder;
 import common.communication.NodeCommunicator;
 import common.communication.TcpNodeCommunicator;
@@ -68,7 +69,6 @@ public class InitServiceCommand extends Command{
         
         try {
             // SSHDeploy to bring up processes
-        	// TODO Read the user/host values from a config file (or as optional command line parameters of the ECS client app?) and store them in the ECS context!
         	if (!startAllNodes(metaData)) {
         		return false;
         	}
@@ -104,7 +104,7 @@ public class InitServiceCommand extends Command{
 
 	private boolean startAllNodes(MetaData metaData) throws InterruptedException {
 		writeResponse("Starting up server nodes...");
-		SSHCommunication sshCommunicator = new SSHCommunication();
+		NodeDeployer sshCommunicator = context.getDeployer();
 
 		for (ServerNode node: metaData.getServers()) {
 			writeResponse(String.format(" - %s at %s:%s", node.getName(), node.getIpAddress(), node.getPort()));

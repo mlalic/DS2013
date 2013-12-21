@@ -12,13 +12,14 @@ import org.apache.log4j.Logger;
 import app_kvEcs.commands.CommandFactory;
 import app_kvEcs.commands.Command;
 import app_kvEcs.commands.Context;
+import app_kvEcs.communication.SshNodeDeployer;
 
 public class ECSClient {
     private final static String PROMPT = "ECS> ";
     private static Logger logger =  Logger.getRootLogger();
     
     public static void main(String[] args){
-    	if (args.length != 1) {
+    	if (args.length < 1 || args.length > 2) {
     		System.out.println("Invalid number of arguments!");
     		System.exit(1);
     	}
@@ -29,10 +30,15 @@ public class ECSClient {
             e1.printStackTrace();
             System.exit(1);
         }
-
+        
         // Setup the CLI app's context...
         Context context = new Context();
-        context.setOutputStream(System.out);        
+        context.setOutputStream(System.out);
+        if (args.length > 1) {
+        	context.setDeployer(new SshNodeDeployer(args[1]));
+        } else {
+        	context.setDeployer(new SshNodeDeployer());
+        }
         // The ECS instance for this process...
         final String configFilePath = args[0];
         ECS ecs = new ECS(configFilePath);
