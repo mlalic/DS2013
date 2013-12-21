@@ -24,7 +24,7 @@ public class SSHCommunication {
 		this.scriptPath = scriptPath;
 	}
 	
-	public boolean sshDeploy(ServerNode node) {
+	public boolean deploy(ServerNode node) {
         try {
             Runtime run = Runtime.getRuntime();
             run.exec(buildCommand(node));

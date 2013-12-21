@@ -108,7 +108,7 @@ public class InitServiceCommand extends Command{
 
 		for (ServerNode node: metaData.getServers()) {
 			writeResponse(String.format(" - %s at %s:%s", node.getName(), node.getIpAddress(), node.getPort()));
-			if (!sshCommunicator.sshDeploy(node)) {
+			if (!sshCommunicator.deploy(node)) {
 				writeError("Unable to start up node " + node.getName() + ". Error initializing the service!");
 				return false;
 			}

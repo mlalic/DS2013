@@ -109,7 +109,7 @@ public class AddNodeCommand extends Command {
 		writeResponse("Starting up a new node...");
 		writeResponse(String.format(" - %s at %s:%s", newNode.getName(), newNode.getIpAddress(), newNode.getPort()));
 		SSHCommunication sshCommunicator = new SSHCommunication();
-		if (!sshCommunicator.sshDeploy(newNode)) {
+		if (!sshCommunicator.deploy(newNode)) {
 			writeError("Unable to start up node " + newNode.getName() + ". Error initializing the service!");
 			return false;
 		}
