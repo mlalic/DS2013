@@ -1,5 +1,7 @@
 package performance;
 
+import java.util.*;
+
 import client.KVStore;
 
 public class Measurement {
@@ -10,159 +12,127 @@ public class Measurement {
 	public static void main(String[] args) {
 		
 		Measurement measurement = new Measurement();
-		measurement.test1();
-		measurement.test2();
-		measurement.test3();
-		measurement.test4();
+		
+		/**
+		 * Testing one server with many clients
+		 */
+		//measurement.testOneServer(1);
+		//measurement.testOneServer(5);
+		//measurement.testOneServer(10);
+		//measurement.testOneServer(15);
+		
+		/**
+		 * Testing three servers with many clients
+		 */
+		//measurement.testThreeServers(1);
+		//measurement.testThreeServers(5);
+		//measurement.testThreeServers(10);
+		//measurement.testThreeServers(15);
+		
+		/**
+		 * Testing five servers with many clients
+		 */
+		//measurement.testFiveServers(1);
+		//measurement.testFiveServers(5);
+		//measurement.testFiveServers(10);
+		measurement.testFiveServers(15);
 		
 	}
 	
-	public void test1() {
+	/**
+	 * Testing one server, n clients
+	 */
+	public void testOneServer(int n) {
 		long startTime;
 		long endTime;
 		
 		startTime = System.currentTimeMillis();
 		
-		KVStore kvClient = new KVStore("localhost", 50000);		
-		try {
-			kvClient.connect();
-		} catch (Exception e1) {
-			e1.printStackTrace();
+		List<ClientThread> threads = new LinkedList<ClientThread>(); 		
+		for (int i = 0; i < n; i++) {
+			int scope = i * 10000;
+			ClientThread client = new ClientThread("127.0.0.1", 50000, scope, "put");
+			threads.add(client);
+			client.start();
 		}
 		
-		for (int i = 0; i < 10000; i++) {
+		for (ClientThread client : threads) {
 			try {
-				kvClient.put(KEY_NAME + i, VALUE_NAME + i);
-			} catch (Exception e) {
+				client.join();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
-		kvClient.disconnect();
 		
 		endTime = System.currentTimeMillis();	
 		
-		System.out.println("Time for executing test1 (1 server, 1 client, 10000 data) is: " + (endTime - startTime)/1000);
+		System.out.println("Time for executing testOneServer (1 server, " + n + " clients, 10000 data) is: " + (endTime - startTime)/1000 + " seconds ");
+		
 	}
 	
-	public void test2() {
+	/**
+	 * Testing three servers, n clients
+	 */
+	public void testThreeServers(int n) {
 		long startTime;
 		long endTime;
 		
 		startTime = System.currentTimeMillis();
 		
-		KVStore kvClient1 = new KVStore("localhost", 50000);
-		KVStore kvClient2 = new KVStore("localhost", 50000);
-		KVStore kvClient3 = new KVStore("localhost", 50000);
-		KVStore kvClient4 = new KVStore("localhost", 50000);
-		KVStore kvClient5 = new KVStore("localhost", 50000);		
-		try {
-			kvClient1.connect();
-			kvClient2.connect();
-			kvClient3.connect();
-			kvClient4.connect();
-			kvClient5.connect();
-		} catch (Exception e1) {
-			e1.printStackTrace();
+		List<ClientThread> threads = new LinkedList<ClientThread>(); 		
+		for (int i = 0; i < n; i++) {
+ 			int scope = i * 10000;
+			int port = 50000  + (i % 3);
+			ClientThread client = new ClientThread("127.0.0.1", port, scope, "put");
+			threads.add(client);
+			client.start();
 		}
 		
-		for (int i = 0; i < 10000; i++) {
+		for (ClientThread client : threads) {
 			try {
-				kvClient1.put(KEY_NAME + i, VALUE_NAME + i);
-				kvClient2.put(KEY_NAME + (i + 10000), VALUE_NAME + (i + 10000));
-				kvClient3.put(KEY_NAME + (i + 20000), VALUE_NAME + (i + 20000));
-				kvClient4.put(KEY_NAME + (i + 30000), VALUE_NAME + (i + 30000));
-				kvClient5.put(KEY_NAME + (i + 40000), VALUE_NAME + (i + 40000));
-			} catch (Exception e) {
+				client.join();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
-		kvClient1.disconnect();
-		kvClient2.disconnect();
-		kvClient3.disconnect();
-		kvClient4.disconnect();
-		kvClient5.disconnect();
 		
 		endTime = System.currentTimeMillis();	
 		
-		System.out.println("Time for executing test2 (1 server, 5 clients, 10000 data/server) is: " + (endTime - startTime)/1000);
+		System.out.println("Time for executing testThreeServers (3 servers, " + n + " clients, 10000 data) is: " + (endTime - startTime)/1000 + " seconds ");
 	}
 	
-	public void test3() {
+	/**
+	 * Testing five servers, n clients
+	 */
+	public void testFiveServers(int n) {
 		long startTime;
 		long endTime;
 		
 		startTime = System.currentTimeMillis();
 		
-		KVStore kvClient = new KVStore("localhost", 50000);
-		
-		try {
-			kvClient.connect();
-		} catch (Exception e1) {
-			e1.printStackTrace();
+		List<ClientThread> threads = new LinkedList<ClientThread>(); 		
+		for (int i = 0; i < n; i++) {
+ 			int scope = i * 10000;
+			int port = 50000  + (i % 5);
+			ClientThread client = new ClientThread("127.0.0.1", port, scope, "put");
+			threads.add(client);
+			client.start();
 		}
 		
-		for (int i = 0; i < 10000; i++) {
+		for (ClientThread client : threads) {
 			try {
-				kvClient.put(KEY_NAME + (i * 20), VALUE_NAME + (i * 20));
-			} catch (Exception e) {
+				client.join();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
-		kvClient.disconnect();
 		
 		endTime = System.currentTimeMillis();	
 		
-		System.out.println("Time for executing test3 (3 servers, 1 client, 10000 data) is: " + (endTime - startTime)/1000);
+		System.out.println("Time for executing testFiveServers (5 servers, " + n + " clients, 10000 data) is: " + (endTime - startTime)/1000 + " seconds ");
 	}
 	
-	public void test4() {
-		long startTime;
-		long endTime;
-		
-		startTime = System.currentTimeMillis();
-		
-		KVStore kvClient1 = new KVStore("localhost", 50000);
-		KVStore kvClient2 = new KVStore("localhost", 50000);
-		KVStore kvClient3 = new KVStore("localhost", 50001);
-		KVStore kvClient4 = new KVStore("localhost", 50002);
-		KVStore kvClient5 = new KVStore("localhost", 50002);		
-		try {
-			kvClient1.connect();
-			kvClient2.connect();
-			kvClient3.connect();
-			kvClient4.connect();
-			kvClient5.connect();
-		} catch (Exception e1) {
-			e1.printStackTrace();
-		}
-		
-		for (int i = 0; i < 10000; i++) {
-			try {
-				kvClient1.put(KEY_NAME + i, VALUE_NAME + i);
-				kvClient2.put(KEY_NAME + (i + 10000), VALUE_NAME + (i + 10000));
-				kvClient3.put(KEY_NAME + (i + 20000), VALUE_NAME + (i + 20000));
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-		
-		for (int i = 0; i < 10000; i++) {
-			try {
-				kvClient4.get(KEY_NAME + i);
-				kvClient5.get(KEY_NAME + (i + 20000));
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-		
-		kvClient1.disconnect();
-		kvClient2.disconnect();
-		kvClient3.disconnect();
-		kvClient4.disconnect();
-		kvClient5.disconnect();
-		
-		endTime = System.currentTimeMillis();	
-		
-		System.out.println("Time for executing test4 (3 servers, 5 clients, 10000 data/server) is: " + (endTime - startTime)/1000);
-	}
 }
