@@ -1,10 +1,9 @@
 package app_kvServer;
 
 import java.io.IOException;
-import java.net.*;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
+import java.net.BindException;
+import java.net.ServerSocket;
+import java.net.Socket;
 
 import logger.LogSetup;
 
@@ -12,7 +11,6 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import common.metadata.MetaData;
-import common.metadata.ServerNode;
 
 
 public class KVServer extends Thread {
@@ -38,6 +36,20 @@ public class KVServer extends Thread {
 	public KVServer(int port, String nodeName) {
 		this.port = port;
 		this.serverContext = new ServerContext(nodeName, ServerStatusType.IDLE);
+	}
+	
+	/**
+	 * Start KV Server at given port
+	 * Server Accepts Client Operations in initial state
+	 * Used for Testing Purposes
+	 * @param port given for storage server to operate
+	 */
+	public KVServer(int port, String nodeName, String status, MetaData metaData) {
+	    this.port = port;
+	    if (status.equalsIgnoreCase("started")){
+	        this.serverContext = new ServerContext(nodeName, ServerStatusType.STARTED);
+	        this.serverContext.setMetaData(metaData);
+	    }
 	}
 
     /**
