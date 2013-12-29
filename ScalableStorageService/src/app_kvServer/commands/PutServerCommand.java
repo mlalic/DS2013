@@ -26,17 +26,20 @@ public class PutServerCommand extends ServerCommand {
 		if (serverContext.getServerStatus().equals(ServerStatusType.STARTED)) {
 			if (isResponsibleFor(key)) {
 				try {
-					boolean oldValue = false;
-					oldValue = serverContext.getServerStorage().containsKey(key);
+					boolean oldValue = serverContext.getServerStorage().containsKey(key);
+
 					if (!oldValue) {
 						serverContext.getServerStorage().put(key, value);
+						serverContext.addDirtyEntry(key, value);
+
 						responseMessage = new KVMessageImpl(KVMessage.StatusType.PUT_SUCCESS, key, value);
 						logger.info("Server has executed PUT_SUCCESS");
 						return responseMessage;
-					}
-					else if ("null".equals(value)){
+					} else if ("null".equals(value)){
 						try {
 							serverContext.getServerStorage().remove(key);
+							serverContext.addDirtyEntry(key, value);
+							
 							responseMessage = new KVMessageImpl(KVMessage.StatusType.DELETE_SUCCESS, key, value);
 							logger.info("Server has executed DELETE_SUCCESS");
 							return responseMessage;
@@ -46,13 +49,15 @@ public class PutServerCommand extends ServerCommand {
 							logger.info("Server has executed DELETE_ERROR");
 							return responseMessage;
 						}
-					}
-					else {
+					} else {
 						serverContext.getServerStorage().put(key, value);
+						serverContext.addDirtyEntry(key, value);
+						
 						responseMessage = new KVMessageImpl(KVMessage.StatusType.PUT_UPDATE, key, value);
 						logger.info("Server has executed PUT_UPDATE");
 						return responseMessage;
 					}
+
 				} catch (Exception e) {
 					responseMessage = new KVMessageImpl(KVMessage.StatusType.PUT_ERROR, key, e.getMessage());
 					logger.info("Server has executed PUT_ERROR");
