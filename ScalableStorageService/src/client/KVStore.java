@@ -2,6 +2,8 @@ package client;
 
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Random;
 
 import org.apache.log4j.Logger;
 
@@ -120,7 +122,7 @@ public class KVStore implements KVCommInterface {
 				"Performing a get request for key '%s'",
 				key)); 
 		
-		return sendMessageToCorrectNode(key, GET_MAX_RETRY_COUNT, getMessage);
+		return sendMessageToCorrectNode(key, GET_MAX_RETRY_COUNT, getMessage, true);
 	}
 
 	/**
@@ -145,7 +147,7 @@ public class KVStore implements KVCommInterface {
 	 * 					 When the maximum number of retries is reached.
 	 */
 	private KVMessage sendMessageToCorrectNode(String key, final int maxRetryCount,
-			final KVMessage message) throws Exception {
+			final KVMessage message, boolean useReplicas) throws Exception {
 		for (int tryNumber = 1; tryNumber <= maxRetryCount; ++tryNumber) {
 			// First, locate the server node which is in charge for storing the given
 			// key.
@@ -158,13 +160,17 @@ public class KVStore implements KVCommInterface {
 				logger.error("Unable to process the request - no metadata");
 				throw new Exception("Lost connection to all servers in the KVServer cluster");
 			}
-
 			logger.info(String.format(
 					"Trying to send a message %s. try #%d, responsible node: %s",
 					message.getStatus().toString(),
 					tryNumber,
 					responsibleNode.getNodeAddress()));
 			
+			if (useReplicas) {
+				responsibleNode = chooseRandomReplica(responsibleNode);
+				logger.info("Using replica " + responsibleNode.getNodeAddress());
+			}
+
 			// Try contacting this node
 			KVMessage response = sendToNode(message, responsibleNode);
 			if (response == null) {
@@ -203,6 +209,35 @@ public class KVStore implements KVCommInterface {
 				"Maximum retry count reached without getting a response from any server node");
 	}
 
+	/**
+	 * A helper method which chooses a random replica of the given node.
+	 * The returned node can be one of the replicas or the node itself, where
+	 * the probability is uniformly distributed for each of the options.
+	 * @param responsibleNode The node for which a random replica should be chosen
+	 * @return A random replica or the node itself
+	 */
+	private ServerNode chooseRandomReplica(ServerNode responsibleNode) {
+		List<ServerNode> replicas = metaData.getReplicas(responsibleNode);
+		replicas.add(responsibleNode);
+		int pos = new Random().nextInt() % replicas.size();
+		if (pos < 0) {
+			pos += replicas.size();
+		}
+
+		return replicas.get(pos);
+	}
+
+	/**
+	 * A variant of the {@link #sendMessageToCorrectNode(String, int, KVMessage, boolean)
+	 * method which does not consider any replicas as valid responsible nodes.
+	 * 
+	 * Simply delegates to the more specific method.
+	 */
+	private KVMessage sendMessageToCorrectNode(String key, final int maxRetryCount,
+			final KVMessage message) throws Exception {
+		return sendMessageToCorrectNode(key, maxRetryCount, message, false);
+	}
+	
 	/**
 	 * Private helper method which performs an update of the metadata currently
 	 * associated with the client instance based on the given JSON representation
