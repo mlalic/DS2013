@@ -1,6 +1,8 @@
 package app_kvServer;
 
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import app_kvServer.KVServer.ServerStatusType;
@@ -34,6 +36,14 @@ public class ServerContext {
 		}
 		// This server is not in the ring
 		return null;
+	}
+	
+	/**
+	 * @return A list of {@link ServerNode} instances representing nodes
+	 * which serve as replication nodes for the key/value pairs of the running node. 
+	 */
+	public List<ServerNode> getReplicas() {
+		return metaData.getReplicas(getServerNode());
 	}
 
 	public void setNodeName(String nodeName) {
