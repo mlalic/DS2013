@@ -23,7 +23,7 @@ public class GetServerCommand extends ServerCommand {
 	@Override
 	public KVMessage execute() {
 		if (serverContext.getServerStatus().equals(ServerStatusType.STARTED) || serverContext.getServerStatus().equals(ServerStatusType.LOCKED_WRITE)) {
-			if (isResponsibleFor(key)) {
+			if (isResponsibleFor(key) || isReplicaFor(key)) {
 				String value = serverContext.getServerStorage().get(key);
 				if (value == null) {
 					responseMessage = new KVMessageImpl(
