@@ -29,6 +29,8 @@ public interface KVMessage {
     	UNLOCK_WRITE,			/* ECS unlocks writing on server */
     	MOVE_DATA,				/* ECS requests server to move data to other server */
     	UPDATE_METADATA,		/* ECS is sending new metadata to server */
+    	
+    	UPDATE_REPLICATED_DATA, /* Server nodes receive this message to update the replicated data they contain. */
 }
 
 	/**

@@ -1,5 +1,7 @@
 package app_kvServer.commands;
 
+import java.util.List;
+
 import app_kvServer.ServerContext;
 import common.messages.*;
 import common.metadata.Md5Hasher;
@@ -22,15 +24,37 @@ public abstract class ServerCommand {
 	
 	public abstract boolean isValid();
 	
-	public boolean isResponsibleFor(String key) {
+	protected boolean isResponsibleFor(String key) {
+		ServerNode responsibleServer = getResponsibleNode(key);
+		if (responsibleServer == null) {
+			return false;
+		}
+		return responsibleServer.getName().equals(serverContext.getNodeName());
+	}
+
+	private ServerNode getResponsibleNode(String key) {
 		Md5Hasher hasher = new Md5Hasher();
 		String hashedKey = hasher.getKeyHash(key);
 		if (serverContext.getMetaData() == null) {		
 			// This server doesn't know anything about the ring,
 			// so it definitely shouldn't consider itself the responsible one
-			return false;
+			return null;
 		}
-		ServerNode responsibleSever = serverContext.getMetaData().getResponsibleServer(hashedKey);
-		return responsibleSever.getName().equals(serverContext.getNodeName());
+		return serverContext.getMetaData().getResponsibleServer(hashedKey);
+	}
+
+	protected boolean isReplicaFor(String key) {
+		ServerNode responsibleNode = getResponsibleNode(key);
+		return nodeInList(serverContext.getMetaData().getReplicas(responsibleNode));
+	}
+
+	private boolean nodeInList(List<ServerNode> replicas) {
+		final ServerNode self = serverContext.getServerNode();
+		for (ServerNode node: replicas) {
+			if (node.equals(self)) {
+				return true;
+			}
+		}
+		return false;
 	}
 }

@@ -1,6 +1,8 @@
 package common.metadata;
 
 import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.NavigableMap;
 import java.util.TreeMap;
@@ -94,6 +96,18 @@ public class MetaData {
 	 */
 	public Collection<ServerNode> getServers() {
 		return serverRing.values();
+	}
+	
+	/**
+	 * @return A list of {@link ServerNode} instances representing nodes
+	 * which serve as replication nodes for the key/value pairs of the given node.
+	 * @param node The {@link ServerNode} for which the list of replicas should be returned 
+	 */
+	public List<ServerNode> getReplicas(ServerNode node) {
+		List<ServerNode> replicas = new LinkedList<ServerNode>();
+		replicas.add(getSuccessor(node));
+		replicas.add(getSuccessor(getSuccessor(node)));
+		return replicas;
 	}
 
 }
